@@ -351,6 +351,7 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
   <div class="ctl"><label>Overlays</label><div style="display:flex;gap:6px"><details class="ovmenu" id="ovMenu"><summary id="ovSummary">Economic indicators</summary><div class="menu" id="ovList"></div></details><div class="tog" id="togCyc"><span class="dot"></span>Economic cycles</div></div></div>
   <div class="spacer"></div>
   <div class="ctl"><label>Export</label><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sec" id="btnCopy">Copy page 1</button><button class="btn sec" id="btnCopy2">Copy page 2</button><button class="btn sec" id="btnCopyMkt">Copy Market Data</button><button class="btn sec" id="btnCopyDash">Copy current dashboard</button><button class="btn sec" id="btnDl">Download PNGs</button><button class="btn sec" id="btnLink">Copy link</button></div></div>
+  <div class="ctl noexp"><label>Reset</label><div style="display:flex;gap:6px"><button class="btn sec" id="btnReset">Reset to default</button></div></div>
 </div></div>
 
 <div class="page">
@@ -790,6 +791,7 @@ const S = { tab: 'trends', rk: 'median', cmet: 'price', taf: null, tat: null, tb
   const want = ['TREB Overall', 'City of Toronto', 'Halton Region', 'Peel Region', 'York Region', 'Durham Region'];
   S.cmp = want.map(n => LOCS.indexOf(n)).filter(i => i >= 0);
 })();
+const S_DEFAULT = JSON.parse(JSON.stringify(S));   // the view the dashboard opens with - restored by the Reset button
 function readHash() {
   const h = location.hash.replace(/^#/, ''); if (!h) return;
   const p = new URLSearchParams(h);
@@ -2004,6 +2006,7 @@ function buildControls() {
   document.addEventListener('click', e => { const m = $('ovMenu'); if (m.open && !m.contains(e.target)) m.open = false; });
   $('togCyc').onclick = () => { S.cyc = !S.cyc; update(); };
   $('btnCopy').onclick = () => copyImage($('dash'), 'dashboard', 1); $('btnCopy2').onclick = () => copyImage($('dash'), 'dashboard', 2); $('btnDl').onclick = () => downloadImage($('dash')); $('btnCopyMkt').onclick = () => copyImage($('dash'), 'market', 1, 'market');
+  $('btnReset').onclick = ev => resetView(ev);
   initButtonTips();
   $('btnLink').onclick = async () => { writeHash(); try { await navigator.clipboard.writeText(location.href); toast('Link copied – it opens this exact view'); } catch (e) { prompt('Copy this link:', location.href); } };
   document.querySelectorAll('.cc[data-copy]').forEach(b => { b.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg>'; b.onclick = () => copyImage($(b.dataset.copy), 'card'); });
@@ -2056,7 +2059,8 @@ function setButtonTips() {
     btnCopyMkt: ['Copy Market Data', 'Copies the Market Data page for the selected area and property type as a report-sized image, without leaving this tab.'],
     btnCopyDash: ['Copy current dashboard', 'Copies everything on screen for this tab, exactly as it is laid out and with the current selections, as one image.'],
     btnDl: [two ? 'Download PNGs' : 'Download PNG', two ? 'Saves both report pages of this tab as PNG files instead of copying them.' : 'Saves this tab as a PNG file instead of copying it.'],
-    btnLink: ['Copy link', 'Copies a web link that reopens this dashboard with exactly these selections (tab, area, property type, month, options).']
+    btnLink: ['Copy link', 'Copies a web link that reopens this dashboard with exactly these selections (tab, area, property type, month, options).'],
+    btnReset: ['Reset to default', 'Clears every selection and returns to the opening view: All Home Types in ' + LOCS[S_DEFAULT.l] + ', the latest month, full history, no overlays. You stay on the tab you are reading.']
   };
   for (const id in tips) { const b = $(id); if (b) { b.dataset.tipT = tips[id][0]; b.dataset.tip = tips[id][1]; b.removeAttribute('title'); } }
 }
@@ -2071,7 +2075,7 @@ function initButtonTips() {
     tip.style.left = x + 'px'; tip.style.top = y + 'px';
   };
   const hide = () => { clearTimeout(timer); tip.style.display = 'none'; };
-  ['btnCopy', 'btnCopy2', 'btnCopyMkt', 'btnCopyDash', 'btnDl', 'btnLink'].forEach(id => {
+  ['btnCopy', 'btnCopy2', 'btnCopyMkt', 'btnCopyDash', 'btnDl', 'btnLink', 'btnReset'].forEach(id => {
     const b = $(id); if (!b) return;
     b.addEventListener('mouseenter', () => { clearTimeout(timer); timer = setTimeout(() => show(b), 120); });
     b.addEventListener('focus', () => show(b));
@@ -2079,6 +2083,17 @@ function initButtonTips() {
   });
   addEventListener('scroll', hide, true);
 }
+// put every selection back to the view the dashboard opens with, staying on the tab the user is reading
+function resetView(ev) {
+  const tab = S.tab;
+  Object.assign(S, JSON.parse(JSON.stringify(S_DEFAULT)));
+  S.tab = tab;
+  location.hash = '';
+  buildControls();
+  update();
+  if (ev) cue(ev, 'Back to the default view', 'All Home Types in ' + LOCS[S_DEFAULT.l] + ', ' + monthLabel(S_DEFAULT.m) + ', full history, and every option back to its starting setting. The tab you are on has not changed.', 4200);
+}
+
 // a short explanation that appears just under the cursor (used when a control changes what the chart shows)
 function cue(ev, title, msg, ms) {
   const el = $('cue');
