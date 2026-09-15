@@ -98,6 +98,7 @@ table.mkt td.pn{color:#1b2320}
 .prose{font-size:12.5px;line-height:1.5;margin:6px 0;color:var(--ink)}
 .prose.quote{border-left:3px solid var(--gold-rule);padding-left:12px;color:var(--muted);font-style:italic}
 .rkcols{display:grid;grid-template-columns:1fr 1fr;gap:6px 26px}
+.rkcols1{display:grid;grid-template-columns:1fr;gap:5px}
 .rk{display:grid;grid-template-columns:24px 138px 1fr 62px;align-items:center;gap:6px;font-size:11.5px;line-height:1.1}
 .rk .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rk.reg .n{font-weight:700}
@@ -376,7 +377,7 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
   <div class="ctl"><label>Range</label><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><div class="seg" id="segRange"><button data-v="12">1Y</button><button data-v="36">3Y</button><button data-v="60">5Y</button><button data-v="0">All</button></div><select id="selFrom" title="From"></select><span style="color:var(--muted2)">to</span><select id="selTo" title="To"></select></div></div>
   <div class="ctl"><label>Overlays</label><div style="display:flex;gap:6px"><details class="ovmenu" id="ovMenu"><summary id="ovSummary">Economic indicators</summary><div class="menu" id="ovList"></div></details><div class="tog" id="togCyc"><span class="dot"></span>Economic cycles</div></div></div>
   <div class="spacer"></div>
-  <div class="ctl"><label>Export</label><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sec" id="btnCopy">Copy page 1</button><button class="btn sec" id="btnCopy2">Copy page 2</button><button class="btn sec" id="btnCopyMkt">Copy Market Data</button><button class="btn sec" id="btnCopyDash">Copy current dashboard</button><button class="btn sec" id="btnDl">Download PNGs</button><button class="btn sec" id="btnLink">Copy link</button></div></div>
+  <div class="ctl"><label>Export</label><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sec" id="btnCopy">Copy page 1</button><button class="btn sec" id="btnCopy2">Copy page 2</button><button class="btn sec" id="btnCopyMkt">Copy Market Data</button><button class="btn sec" id="btnCopyDash">Copy current dashboard</button><button class="btn sec" id="btnDl">Download PNGs</button><button class="btn sec" id="btnPdf">Download PDF</button><button class="btn sec" id="btnLink">Copy link</button></div></div>
   <div class="ctl noexp"><label>Reset</label><div style="display:flex;gap:6px"><button class="btn sec" id="btnReset">Reset to default</button></div></div>
 </div></div>
 
@@ -464,7 +465,7 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
       </div>
 
       <div class="grid noexp"><div class="card" id="cardTA">
-        <div class="hd"><div><h3>Time Adjustment Calculator</h3><div class="st">Price change between two months for the selected area and property type — for adjusting comparable sales to the effective date</div></div></div>
+        <div class="hd"><div><h3>Time Adjustment Calculator <span class="ctx" data-ctx></span></h3><div class="st">Price change between two months for the selected area and property type — for adjusting comparable sales to the effective date</div></div></div>
         <div class="ta">
           <div class="ta-ctl">
             <div class="ctl"><label>Sale month (from)</label><select id="taFrom"></select></div>
@@ -622,6 +623,11 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
           <div class="note" id="cleasingBandsNote"></div>
         </div>
       </div>
+      <div class="grid"><div class="card" id="cardcleasingRank">
+        <div class="hd"><div><h3 id="cleasingRankTitle"></h3><div class="st" id="cleasingRankSub"></div></div><div class="r"><button class="cc" data-copy="cardcleasingRank" title="Copy"></button></div></div>
+        <div id="cleasingRank" class="rkcols1"></div>
+        <div class="note" id="cleasingRankNote"></div>
+      </div></div>
       <div class="grid"><div class="card" id="cardcleasingAreas">
         <div class="hd"><div><h3 id="cleasingAreasTitle"></h3><div class="st" id="cleasingAreasSub"></div></div><div class="r"><button class="cc" data-copy="cardcleasingAreas" title="Copy"></button></div></div>
         <div class="tblwrap"><table class="stats mixt" id="cleasingAreas"></table></div>
@@ -655,6 +661,11 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
           <div class="note" id="csalesBandsNote"></div>
         </div>
       </div>
+      <div class="grid"><div class="card" id="cardcsalesRank">
+        <div class="hd"><div><h3 id="csalesRankTitle"></h3><div class="st" id="csalesRankSub"></div></div><div class="r"><button class="cc" data-copy="cardcsalesRank" title="Copy"></button></div></div>
+        <div id="csalesRank" class="rkcols1"></div>
+        <div class="note" id="csalesRankNote"></div>
+      </div></div>
       <div class="grid"><div class="card" id="cardcsalesAreas">
         <div class="hd"><div><h3 id="csalesAreasTitle"></h3><div class="st" id="csalesAreasSub"></div></div><div class="r"><button class="cc" data-copy="cardcsalesAreas" title="Copy"></button></div></div>
         <div class="tblwrap"><table class="stats mixt" id="csalesAreas"></table></div>
@@ -688,6 +699,11 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
           <div class="note" id="clandBandsNote"></div>
         </div>
       </div>
+      <div class="grid"><div class="card" id="cardclandRank">
+        <div class="hd"><div><h3 id="clandRankTitle"></h3><div class="st" id="clandRankSub"></div></div><div class="r"><button class="cc" data-copy="cardclandRank" title="Copy"></button></div></div>
+        <div id="clandRank" class="rkcols1"></div>
+        <div class="note" id="clandRankNote"></div>
+      </div></div>
       <div class="grid"><div class="card" id="cardclandAreas">
         <div class="hd"><div><h3 id="clandAreasTitle"></h3><div class="st" id="clandAreasSub"></div></div><div class="r"><button class="cc" data-copy="cardclandAreas" title="Copy"></button></div></div>
         <div class="tblwrap"><table class="stats mixt" id="clandAreas"></table></div>
@@ -720,6 +736,11 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
           <div class="note" id="ryieldNote"></div>
         </div>
       </div>
+      <div class="grid"><div class="card" id="cardRyieldRank">
+        <div class="hd"><div><h3 id="ryieldRankTitle">Gross Rent Yield by Area</h3><div class="st" id="ryieldRankSub"></div></div><div class="r"><button class="cc" data-copy="cardRyieldRank" title="Copy"></button></div></div>
+        <div id="ryieldRank" class="rkcols"></div>
+        <div class="note" id="ryieldRankNote"></div>
+      </div></div>
       <div class="grid"><div class="card" id="cardRdec">
         <div class="hd"><div><h3 id="rdecTitle">Same Quarter, Past 10 Years</h3><div class="st" id="rdecSub"></div></div><div class="r"><button class="cc" data-copy="cardRdec" title="Copy"></button></div></div>
         <div class="tblwrap"><table class="stats mixt" id="rdec"></table></div>
@@ -846,7 +867,7 @@ const OVERLAYS = [
   { k: 'ur_ca', n: 'Unemployment rate – Canada', g: 'Labour market', c: '#7f95ad', d: D.rates.ur_ca },
 ];
 const OV = Object.fromEntries(OVERLAYS.map(o => [o.k, o]));
-const PHASE_FILL = { Recession: '#f1c4c4b0', Contraction: '#f6dcbbb0', Recovery: "#dbe7f3b0" };
+const PHASE_FILL = { Recession: '#f1c4c4b0', Contraction: '#f6dcbbb0', Recovery: '#efe4b6b0' };
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const $ = id => document.getElementById(id);
 
@@ -1829,6 +1850,31 @@ function qOfMonth(mi) {                  // quarter index for a month index of t
   const q = M[mi].slice(0, 4) + ' Q' + (Math.floor((+M[mi].slice(5) - 1) / 3) + 1); return RQ.indexOf(q);
 }
 function rSpec(extra) { return Object.assign({ months: RM, xLabel: i => RQ[i].slice(5) + ' ' + RQ[i].slice(2, 4) }, extra); }
+function renderRentYieldRank(rt, i) {    // gross rent yield ranked across every area with matching rent and price data
+  if (!R) return;
+  const pt = rt === 0 ? 4 : 3;           // condo apartment / condo townhouse median from the Market Watch (matches the single-area chart above)
+  const rows = [];
+  for (let l = 0; l < LOCS.length; l++) {
+    if (!R.data[rt + ':' + l]) continue;
+    const w = wRent(rt, l, i);
+    if (w === null) continue;
+    const medM = ser(pt, l, 'median');
+    const ms = M.map((m, mi) => qOfMonth(mi) === i ? medM[mi] : null).filter(x => x !== null);
+    const price = ms.length ? ms.reduce((a, c) => a + c, 0) / ms.length : null;
+    if (price === null) continue;
+    const leased = rv(rt, l, 1, i);
+    rows.push({ l, name: LOCS[l], val: w * 12 / price * 100, small: leased !== null && leased < SMALL });
+  }
+  rows.sort((a, b) => b.val - a.val);
+  const max = rows.length ? rows[0].val : 1, min = rows.length ? rows[rows.length - 1].val : 0;
+  $('ryieldRankSub').textContent = rtName(rt) + ', ' + qLabel(i) + ' · ' + rows.length + ' areas with matching rent and sale-price data, highest to lowest';
+  const col = list => '<div>' + list.map(r => { const rank = rows.indexOf(r) + 1, w = max > 0 ? Math.max(2, r.val / max * 100) : 0, hue = 1 - (r.val - min) / (max - min || 1);
+    const mix = (p, q, f) => Math.round(p + (q - p) * f), colr = `rgb(${mix(47, 198, hue)},${mix(111, 40, hue)},${mix(159, 40, hue)})`;
+    return '<div class="rk' + (r.l === S.l ? ' sel' : '') + '"><span class="r">' + rank + '</span><span class="n" title="' + r.name + '">' + r.name + (r.small ? ' <span class="flag" title="Fewer than ' + SMALL + ' leases">†</span>' : '') + '</span><div><div class="b" style="width:' + w + '%;background:' + colr + '"></div></div><span class="v">' + r.val.toFixed(2) + '%</span></div>'; }).join('') + '</div>';
+  const half = Math.ceil(rows.length / 2);
+  $('ryieldRank').innerHTML = col(rows.slice(0, half)) + col(rows.slice(half));
+  $('ryieldRankNote').textContent = 'Twelve times the leased-weighted average rent for ' + rtName(rt).toLowerCase() + ' divided by the average median sale price of the matching condominium type, both for ' + qLabel(i) + '. Before taxes, condo fees, vacancy and management — a market-level comparison across areas, not a capitalization rate for any one property. † fewer than ' + SMALL + ' leases.';
+}
 function renderRental() {
   if (!R) return;
   const rt = S.rt, l = S.l, i = S.rq, j = i - 4, [from, to] = rRange(), b = S.rb, hasType = !!R.data[rt + ':' + l];
@@ -1901,6 +1947,7 @@ function renderRental() {
     const cur = yieldS[i], curP = yieldS[j];
     $('ryieldNote').textContent = 'Gross yield before taxes, condo fees, vacancy and management — a market-level indicator of how rents have moved relative to prices, not a capitalization rate for any one property. ' + (cur !== null ? qLabel(i) + ': ' + cur.toFixed(2) + '%' + (curP !== null ? ' (' + (curP > cur ? 'down from ' : curP < cur ? 'up from ' : 'unchanged from ') + curP.toFixed(2) + '% a year earlier)' : '') + '.' : '') + ' Sale prices are available from ' + monthLabel(0) + '.';
   } else { drawChart($('chRyield'), rSpec({ height: 240, from, to, series: [] })); $('ryieldNote').textContent = 'No matching sale prices for this area and period.'; }
+  renderRentYieldRank(rt, i);
   // ---- rents across the area
   const chain = areaChain(l), region = locRegion(l), regIdx = region ? LOCS.indexOf(region) : -1;
   let peers = [];
@@ -2239,6 +2286,8 @@ function renderComm() {
   });
   $(tab + 'Bands').innerHTML = h + '</tbody>';
   $(tab + 'BandsNote').textContent = '† fewer than ' + CSMALL_Q + ' transactions in the quarter or ' + CSMALL_Y + ' in the trailing year — an average of that few deals is a data point, not a market rate.';
+  // ---- ranked list: regions and Toronto zones, highest to lowest
+  renderCommRank(tab, kind, sec, i, tname);
   // ---- areas table: TRREB, regions and zones, plus the members of the selected area's own region / zone
   const par = (CM.levels[l] === 'Region' || CM.levels[l] === 'Toronto Zone') ? l : (CM.levels[l] === 'All Areas' ? -1 : cParent(l));
   const rowsL = CM.locs.map((_, k) => k).filter(k => ['All Areas', 'Region', 'Toronto Zone'].includes(CM.levels[k]) || (par >= 0 && cKids(par).includes(k)));
@@ -2253,6 +2302,25 @@ function renderComm() {
   }
   $(tab + 'Areas').innerHTML = h + '</tbody>';
   $(tab + 'AreasNote').textContent = 'Regions and Toronto zones rest on enough transactions to read as a trend; individual municipalities and districts usually do not (median one to five deals a year) and are shown for reference only. Changes are left blank where either end rests on fewer than ' + CSMALL_Y + ' transactions. Nested totals: a region includes its municipalities.';
+}
+function renderCommRank(tab, kind, sec, i, tname) {     // ranked bar list - regions and Toronto zones only (municipalities too thin to rank)
+  const unit = cUnit(kind), rows = [];
+  for (let l = 0; l < CM.locs.length; l++) {
+    if (CM.levels[l] !== 'Region' && CM.levels[l] !== 'Toronto Zone') continue;
+    const roll = cRoll(cget(sec, l, 0), 4);
+    if (roll[2][i] === null) continue;
+    rows.push({ l, name: cAreaName(l), val: roll[2][i], n: roll[0][i] });
+  }
+  rows.sort((a, b) => b.val - a.val);
+  const max = rows.length ? rows[0].val : 1, min = rows.length ? rows[rows.length - 1].val : 0;
+  $(tab + 'RankTitle').innerHTML = 'Ranked ' + (kind === 'lease' ? 'Lease Rates' : kind === 'sale' ? 'Sale Prices' : 'Land Prices') + ' <span class="ctx">' + tname + '</span>';
+  $(tab + 'RankSub').textContent = rows.length + ' regions and Toronto zones with data, trailing year to ' + cqLabel(i) + ', ' + unit + ', highest to lowest';
+  $(tab + 'Rank').innerHTML = rows.map((r, idx) => {
+    const w = max > 0 ? Math.max(2, r.val / max * 100) : 0, hue = 1 - (r.val - min) / (max - min || 1);
+    const mix = (p, q, f) => Math.round(p + (q - p) * f), colr = `rgb(${mix(47, 198, hue)},${mix(111, 40, hue)},${mix(159, 40, hue)})`;
+    return '<div class="rk' + (r.l === S.cl ? ' sel' : '') + '"><span class="r">' + (idx + 1) + '</span><span class="n" title="' + r.name + '">' + r.name + (r.n < CSMALL_Y ? ' <span class="flag" title="Fewer than ' + CSMALL_Y + ' transactions">†</span>' : '') + '</span><div><div class="b" style="width:' + w + '%;background:' + colr + '"></div></div><span class="v">' + cPrice(kind, r.val) + '</span></div>';
+  }).join('');
+  $(tab + 'RankNote').textContent = 'Trailing-year, ' + (kind === 'land' ? 'acreage' : 'floor-area') + '-weighted ' + unit + ' by region and Toronto zone; individual municipalities and districts are left out here as too thin to rank reliably (see the Areas table below). † fewer than ' + CSMALL_Y + ' transactions in the trailing year — treat with caution.';
 }
 function renderCommControls() {         // area list grouped the way TRREB prints it
   if (!CM) return;
@@ -2385,7 +2453,7 @@ function buildControls() {
   $('ovList').querySelectorAll('input').forEach(cb => cb.onchange = () => { S.ov = [...$('ovList').querySelectorAll('input:checked')].map(c => c.dataset.ov); update(); });
   document.addEventListener('click', e => { const m = $('ovMenu'); if (m.open && !m.contains(e.target)) m.open = false; });
   $('togCyc').onclick = () => { S.cyc = !S.cyc; update(); };
-  $('btnCopy').onclick = () => copyImage($('dash'), 'dashboard', 1); $('btnCopy2').onclick = () => copyImage($('dash'), 'dashboard', 2); $('btnDl').onclick = () => downloadImage($('dash')); $('btnCopyMkt').onclick = () => copyImage($('dash'), 'market', 1, 'market');
+  $('btnCopy').onclick = () => copyImage($('dash'), 'dashboard', 1); $('btnCopy2').onclick = () => copyImage($('dash'), 'dashboard', 2); $('btnDl').onclick = () => downloadImage($('dash')); $('btnPdf').onclick = () => downloadPdf($('dash')); $('btnCopyMkt').onclick = () => copyImage($('dash'), 'market', 1, 'market');
   $('btnReset').onclick = ev => resetView(ev);
   initButtonTips();
   $('btnLink').onclick = async () => { writeHash(); try { await navigator.clipboard.writeText(location.href); toast('Link copied – it opens this exact view'); } catch (e) { prompt('Copy this link:', location.href); } };
@@ -2449,6 +2517,7 @@ function setButtonTips() {
     btnCopyMkt: ['Copy Market Data', 'Copies the Market Data page for the selected area and property type as a report-sized image, without leaving this tab.'],
     btnCopyDash: ['Copy current dashboard', 'Copies everything on screen for this tab, exactly as it is laid out and with the current selections, as one image.'],
     btnDl: [two ? 'Download PNGs' : 'Download PNG', two ? 'Saves both report pages of this tab as PNG files instead of copying them.' : 'Saves this tab as a PNG file instead of copying it.'],
+    btnPdf: ['Download PDF', two ? 'Saves both report pages of this tab as one PDF file, ready to attach to a report.' : 'Saves this tab as a one-page PDF file, ready to attach to a report.'],
     btnLink: ['Copy link', 'Copies a web link that reopens this dashboard with exactly these selections (tab, area, property type, month, options).'],
     btnReset: ['Reset to default', 'Clears every selection and returns to the opening view: All Home Types in ' + LOCS[S_DEFAULT.l] + ', the latest month, full history, no overlays. You stay on the tab you are reading.']
   };
@@ -2465,7 +2534,7 @@ function initButtonTips() {
     tip.style.left = x + 'px'; tip.style.top = y + 'px';
   };
   const hide = () => { clearTimeout(timer); tip.style.display = 'none'; };
-  ['btnCopy', 'btnCopy2', 'btnCopyMkt', 'btnCopyDash', 'btnDl', 'btnLink', 'btnReset'].forEach(id => {
+  ['btnCopy', 'btnCopy2', 'btnCopyMkt', 'btnCopyDash', 'btnDl', 'btnPdf', 'btnLink', 'btnReset'].forEach(id => {
     const b = $(id); if (!b) return;
     b.addEventListener('mouseenter', () => { clearTimeout(timer); timer = setTimeout(() => show(b), 120); });
     b.addEventListener('focus', () => show(b));
@@ -2553,6 +2622,45 @@ async function downloadImage(node) {
     await new Promise(r => setTimeout(r, 600));
   }
   toast(TABS[S.tab].pages === 2 ? 'Two PNGs downloaded (page 1 and page 2)' : 'PNG downloaded');
+}
+/* ---------------- PDF export (both report pages combined, no library needed) ---------------- */
+// Builds a minimal PDF by hand: one page per canvas, each page just a full-bleed JPEG. No jsPDF or any other
+// dependency, so the dashboard stays a single self-contained file that works offline and embedded on the website.
+function pdfConcat(parts) { const len = parts.reduce((a, c) => a + c.length, 0), out = new Uint8Array(len); let o = 0; for (const p of parts) { out.set(p, o); o += p.length; } return out; }
+function pdfStr(s) { const b = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i) & 0xff; return b; }
+async function canvasesToPdf(canvases) {
+  const jpegs = [];
+  for (const cv of canvases) { const blob = await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.92)); jpegs.push({ w: cv.width, h: cv.height, data: new Uint8Array(await blob.arrayBuffer()) }); }
+  let nextId = 1; const catalogId = nextId++, pagesId = nextId++;
+  const pageIds = jpegs.map(() => nextId++), imgIds = jpegs.map(() => nextId++), contentIds = jpegs.map(() => nextId++);
+  const parts = []; let offset = 0; const xref = [];
+  const push = x => { const b = typeof x === 'string' ? pdfStr(x) : x; parts.push(b); offset += b.length; };
+  const obj = (id, body) => { xref[id] = offset; push(id + ' 0 obj\n'); push(body); push('\nendobj\n'); };
+  push('%PDF-1.4\n');
+  obj(catalogId, '<< /Type /Catalog /Pages ' + pagesId + ' 0 R >>');
+  obj(pagesId, '<< /Type /Pages /Kids [' + pageIds.map(id => id + ' 0 R').join(' ') + '] /Count ' + pageIds.length + ' >>');
+  jpegs.forEach(({ w, h, data }, i) => {
+    const pageId = pageIds[i], imgId = imgIds[i], contentId = contentIds[i];
+    const wPt = (w * 72 / 144).toFixed(2), hPt = (h * 72 / 144).toFixed(2);   // canvases render at 2x device scale; treat as 144dpi so pages come out print-sized
+    obj(pageId, '<< /Type /Page /Parent ' + pagesId + ' 0 R /MediaBox [0 0 ' + wPt + ' ' + hPt + '] /Resources << /XObject << /Im ' + imgId + ' 0 R >> >> /Contents ' + contentId + ' 0 R >>');
+    const cs = 'q ' + wPt + ' 0 0 ' + hPt + ' 0 0 cm /Im Do Q';
+    obj(contentId, '<< /Length ' + cs.length + ' >>\nstream\n' + cs + '\nendstream');
+    xref[imgId] = offset; push(imgId + ' 0 obj\n<< /Type /XObject /Subtype /Image /Width ' + w + ' /Height ' + h + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + data.length + ' >>\nstream\n'); push(data); push('\nendstream\nendobj\n');
+  });
+  const xrefOffset = offset, count = nextId;
+  push('xref\n0 ' + count + '\n0000000000 65535 f \n');
+  for (let i = 1; i < count; i++) push(String(xref[i]).padStart(10, '0') + ' 00000 n \n');
+  push('trailer\n<< /Size ' + count + ' /Root ' + catalogId + ' 0 R >>\nstartxref\n' + xrefOffset + '\n%%EOF');
+  return new Blob(parts, { type: 'application/pdf' });
+}
+function fileNamePdf() { return ('HVI District Trends - ' + typeName() + ' - ' + locName() + ' - ' + monthLabel(S.m) + '.pdf').replace(/[\\/:*?"<>|]/g, '-'); }
+async function downloadPdf(node) {
+  const pages = TABS[S.tab].pages === 2 ? [1, 2] : [1], canvases = [];
+  for (const page of pages) { canvases.push(await renderNode(node, page)); await new Promise(r => setTimeout(r, 200)); }
+  const blob = await canvasesToPdf(canvases), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = fileNamePdf(); document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+  toast(pages.length === 2 ? 'PDF downloaded (both pages)' : 'PDF downloaded');
 }
 
 /* ---------------- boot ---------------- */
