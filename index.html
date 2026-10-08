@@ -475,7 +475,7 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
       </div></div>
 
       <div class="grid noexp" id="locRow"><div class="card" id="cardLocMap">
-        <div class="hd"><div><h3 id="lmTitle">Location</h3><div class="st" id="lmSub"></div></div><div class="r"><div class="seg" id="segLocMet"><button data-v="median">Median</button><button data-v="avg">Average</button><button data-v="yoy">1-yr change</button><button data-v="snlr">SNLR</button><button data-v="inv">Inventory</button><button data-v="dom">DOM</button></div><button class="btn sec small" id="lmFull" title="Open the full map under Compare Areas">Full map</button></div></div>
+        <div class="hd"><div><h3 id="lmTitle">Location</h3><div class="st" id="lmSub"></div></div><div class="r"><div class="seg" id="segLocMet"><button data-v="median">Median</button><button data-v="avg">Average</button><button data-v="yoy">1-yr change</button><button data-v="snlr">SNLR</button><button data-v="inv">Inventory</button><button data-v="dom">DOM</button></div><button class="btn sec small" id="lmFull" title="Make the map bigger, right here on this page">Larger map</button></div></div>
         <div class="lmwrap"><div><div class="mpmap chart" id="lmMap"></div><div class="lmleg" id="lmLeg"></div></div><div class="mpside lmside" id="lmSide"></div></div>
         <div class="note" id="lmNote"></div>
       </div></div>
@@ -1075,7 +1075,7 @@ const MERGED = { compare: D.map ? ['compare', 'rank', 'map'] : ['compare', 'rank
 const VIEW_NAMES = { compare: 'District Comparison', rank: 'Rankings', map: 'Map', growth: 'Growth Rates', decade: 'Same Month, Past 10 Years' };
 const primaryOf = tab => Object.keys(MERGED).find(k => MERGED[k].includes(tab)) || tab;
 const lastInMerge = {};
-const S = { tab: 'trends', rk: 'median', mk: 'median', mx: 'gta', lm: 'median', cmet: 'price', taf: null, tat: null, tb: 'median', dp: 20, am: 25, ar: 'fixed5', t: 0, l: 0, m: N - 1, pm: 'median', sm: 'auto', view: 'usd', from: 0, to: N - 1, ov: [], cyc: false,
+const S = { lx: false, tab: 'trends', rk: 'median', mk: 'median', mx: 'gta', lm: 'median', cmet: 'price', taf: null, tat: null, tb: 'median', dp: 20, am: 25, ar: 'fixed5', t: 0, l: 0, m: N - 1, pm: 'median', sm: 'auto', view: 'usd', from: 0, to: N - 1, ov: [], cyc: false,
   cmp: [], cv: 'idx', cm: 'lines', rankSort: 'price', rankDir: -1, sa: 'sa', sd: 'raw', cl: 0, ct: 0, cq: -1, cs: 'all', cb: 'y', cr: 40, rt: 0, rq: -1, rb: 'all', rr: 40, er: 120 };
 (function defaults() {
   const want = ['TREB Overall', 'City of Toronto', 'Halton Region', 'Peel Region', 'York Region', 'Durham Region'];
@@ -2292,10 +2292,16 @@ function renderLocMap() {
   $('lmSide').innerHTML = side;
   $('lmSide').querySelectorAll('.mpr').forEach(e => e.onclick = () => { S.l = +e.dataset.l; update(); });
   $('lmLeg').innerHTML = mapLegend(md);
-  const st = MAPS.loc = Object.assign(MAPS.loc || {}, { box: $('lmMap'), md, mode: 'focus', fixedH: 440, vb: view.vb, selArea: view.area, selRegions: view.regions });
+  const lmH = S.lx ? Math.max(440, Math.min(820, window.innerHeight - 140)) : 440, kz = lmH / 440;   // larger map = same zoom, more surroundings
+  const lvb = kz === 1 ? view.vb : (() => { const [a, b2, c2, d] = view.vb, cx = (a + c2) / 2, cy = (b2 + d) / 2, w = (c2 - a) * kz / 2, h = (d - b2) * kz / 2; return [cx - w, cy - h, cx + w, cy + h]; })();
+  const st = MAPS.loc = Object.assign(MAPS.loc || {}, { box: $('lmMap'), md, mode: 'focus', fixedH: lmH, vb: lvb, selArea: view.area, selRegions: view.regions });
   paintMap(st, true);
   $('lmNote').textContent = 'The map zooms to whichever area is selected above. Colours use the same seven equal-count groups across all 65 municipalities and Toronto districts as Compare Areas › Map' + (k.div ? ' (fixed bands for the 1-year change)' : '') + '; hatched areas had fewer than ' + SMALL + ' sales. Drag to move the map; zoom with + / \u2212, Ctrl + scroll or a pinch; \u2302 returns to the selected area. Bordering-area figures compare each neighbour with the selected area. ' + MAP_CREDIT;
-  $('lmFull').onclick = () => { S.mk = S.lm; S.mx = view.area && view.area.tor || name === 'City of Toronto' || name.startsWith('Toronto ') ? 'tor' : 'gta'; S.tab = 'map'; update(); window.scrollTo({ top: 0 }); };
+  // enlarge / shrink the map in place - the main page never sends people to another tab
+  const big = !!S.lx, fb = $('lmFull'); fb.textContent = big ? 'Smaller map' : 'Larger map'; fb.title = big ? 'Return the map to its normal size' : 'Make the map bigger, right here on this page';
+  fb.onclick = () => { S.lx = !S.lx; renderLocMap(); if (S.lx) {        // bring the card's top just below the sticky control bar
+      let bar = 0; for (const el of document.querySelectorAll('body *')) { const cs = getComputedStyle(el); if ((cs.position === 'sticky' || cs.position === 'fixed') && el.offsetHeight && el.getBoundingClientRect().top <= 1 && el.offsetHeight < innerHeight / 2) bar = Math.max(bar, el.getBoundingClientRect().bottom); }
+      const top = $('cardLocMap').getBoundingClientRect().top + scrollY - bar - 8; window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' }); } };
 }
 
 /* ---------------- Same month, past 10 years tab ---------------- */
