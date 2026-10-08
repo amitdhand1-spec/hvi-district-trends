@@ -2435,7 +2435,12 @@ async function lmSearch(q) {
     say('Looking up “' + q + '”…');
     try {
       const u = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=ca&viewbox=-80.3,44.6,-78.3,43.2&bounded=1&q=' + encodeURIComponent(q);
-      const res = await fetch(u, { headers: { 'Accept': 'application/json' } }); const js = await res.json();
+      const res = await fetch(u, { headers: { 'Accept': 'application/json' } }); let js = await res.json();
+      const pc = q.toUpperCase().replace(/\s+/g, '').match(/^([A-Z]\d[A-Z])(\d[A-Z]\d)?$/);
+      if (!js.length && pc) {      // a full postal code OpenStreetMap doesn't know: fall back to its first three characters (approximate)
+        const r2 = await fetch(u.replace('&q=' + encodeURIComponent(q), '&q=' + encodeURIComponent(pc[1] + ', Ontario')), { headers: { 'Accept': 'application/json' } }); js = await r2.json();
+        if (js.length) js[0].display_name = pc[1] + ' postal area (approximate – the centre of that postal area)';
+      }
       if (!js.length) { say('No match found for “' + q + '” in the TRREB area. Try adding the city, e.g. “123 Main St, Markham”.', true); return; }
       lat = +js[0].lat; lon = +js[0].lon; label = js[0].display_name.split(',').slice(0, 3).join(',');
     } catch (e) { say('The address lookup isn’t reachable from this page (it needs an internet connection and works on the published site). You can still type an area name or a district code such as C09.', true); return; }
