@@ -99,7 +99,10 @@ table.mkt td.pn{color:#1b2320}
 .prose{font-size:12.5px;line-height:1.5;margin:6px 0;color:var(--ink)}
 .prose.quote{border-left:3px solid var(--gold-rule);padding-left:12px;color:var(--muted);font-style:italic}
 .mpwrap{display:grid;grid-template-columns:1fr 250px;gap:18px;align-items:start}
-.mpmap canvas{border-radius:6px}
+.mpmap canvas{border-radius:6px;cursor:grab}
+.mpctl{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;z-index:4}
+.mpctl button{width:28px;height:28px;border:1px solid #c9cfcb;background:#fffffff0;border-radius:6px;font:600 16px/1 system-ui,sans-serif;color:#1b2320;cursor:pointer;padding:0;box-shadow:0 1px 3px #0000001f}
+.mpctl button:hover{background:#eef3f8}
 .mpside{font-size:12px;line-height:1.35}
 .mpside h4{margin:12px 0 5px;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#77837e}
 .mpside h4:first-child{margin-top:0}
@@ -2090,7 +2093,9 @@ function paintMap(st, animate) {
   const H = st.fixedH ? st.fixedH : Math.round(Math.min(W * (T[3] - T[1]) / (T[2] - T[0]), st.maxH * EXPORT_SCALE));
   // widen the target view to the box's shape so the map always fills the frame
   const fit = vb => { const cx = (vb[0] + vb[2]) / 2, cy = (vb[1] + vb[3]) / 2; let w = vb[2] - vb[0], h = vb[3] - vb[1]; if (w / h < W / H) w = h * W / H; else h = w * H / W; return [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2]; };
-  const target = fit(T);
+  const target = fit(T), tkey = T.map(x => x.toFixed(1)).join(',');
+  if (st.tkey !== tkey) { st.tkey = tkey; st.user = null; }        // a new selection or extent replaces any panned/zoomed view
+  if (st.user) { st.anim = (st.anim || 0) + 1; st.user = fit(st.user); drawFrame(st, W, H, st.user, false); return; }
   if (animate && st.cur && st.cur.some((x, j) => Math.abs(x - target[j]) > 0.5) && !$('dash').classList.contains('exporting')) {
     const from = st.cur.slice(), t0 = performance.now(), dur = 550, id = (st.anim = (st.anim || 0) + 1);
     const step = now => { if (id !== st.anim) return; const p = Math.min(1, (now - t0) / dur), e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
@@ -2108,7 +2113,7 @@ function drawFrame(st, W, H, vb, moving) {
   let cv = box.querySelector('canvas'), tip = box.querySelector('.tip');
   if (!cv) { cv = document.createElement('canvas'); tip = document.createElement('div'); tip.className = 'tip'; box.appendChild(cv); box.appendChild(tip);
     cv.addEventListener('mousemove', e => mapHover(box._st, e)); cv.addEventListener('mouseleave', () => { const s = box._st; tip.style.display = 'none'; if (s.hover) { s.hover = null; drawFrame(s, s.dims.W, s.dims.H, s.cur, false); } });
-    cv.addEventListener('click', e => { const r = mapHit(box._st, e); if (r && r.a.l >= 0) { S.l = r.a.l; update(); } }); }
+    mapInteract(box, cv, tip); }
   box._st = st;
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + 'px'; }
   const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -2160,6 +2165,52 @@ function drawFrame(st, W, H, vb, moving) {
     if (two) lab(md.k.lf(r.val), x, y + fs * 0.6, fs * 0.85, '500', '#33413c');
   }
 }
+// pan & zoom: one finger / mouse drag pans, two fingers pinch, Ctrl + wheel (or a trackpad pinch) zooms at the pointer,
+// the corner buttons zoom about the centre or return to the selected area. A click without a drag still selects an area.
+function mapZoom(st, f, px, py) {
+  if (!st.cur || !st.dims) return;
+  const { W, H } = st.dims, v0 = st.cur, sc = W / (v0[2] - v0[0]), geo = mapGeo();
+  let w = (v0[2] - v0[0]) * f; w = Math.max(18, Math.min(geo.w * 1.6, w)); const k = w / (v0[2] - v0[0]), h = (v0[3] - v0[1]) * k;
+  if (px === undefined) { px = W / 2; py = H / 2; }
+  const ux = v0[0] + px / sc, uy = v0[1] + py / sc;      // the point under the pointer stays put
+  st.user = [ux - (ux - v0[0]) * k, uy - (uy - v0[1]) * k, ux - (ux - v0[0]) * k + w, uy - (uy - v0[1]) * k + h];
+  st.anim = (st.anim || 0) + 1; drawFrame(st, W, H, st.user, false);
+}
+function mapInteract(box, cv, tip) {
+  const pts = new Map(); let drag = null;
+  const rel = e => { const rc = cv.getBoundingClientRect(); return [e.clientX - rc.left, e.clientY - rc.top]; };
+  cv.style.touchAction = 'none';
+  cv.addEventListener('pointerdown', e => { const st = box._st; if (!st || !st.cur) return; cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, rel(e));
+    const v = [...pts.values()];
+    drag = { moved: false, view: st.cur.slice(), p: v[0], d: v.length > 1 ? Math.hypot(v[0][0] - v[1][0], v[0][1] - v[1][1]) : 0, m: v.length > 1 ? [(v[0][0] + v[1][0]) / 2, (v[0][1] + v[1][1]) / 2] : null }; });
+  cv.addEventListener('pointermove', e => {
+    if (!drag || !pts.has(e.pointerId)) return; const st = box._st; pts.set(e.pointerId, rel(e)); const v = [...pts.values()], { W, H } = st.dims;
+    if (v.length > 1 && drag.d) {          // pinch
+      const d = Math.hypot(v[0][0] - v[1][0], v[0][1] - v[1][1]), m = [(v[0][0] + v[1][0]) / 2, (v[0][1] + v[1][1]) / 2];
+      st.cur = drag.view.slice(); const sc = W / (drag.view[2] - drag.view[0]);
+      st.cur = [drag.view[0] - (m[0] - drag.m[0]) / sc, drag.view[1] - (m[1] - drag.m[1]) / sc, drag.view[2] - (m[0] - drag.m[0]) / sc, drag.view[3] - (m[1] - drag.m[1]) / sc];
+      drag.moved = true; tip.style.display = 'none'; mapZoom(st, drag.d / d, m[0], m[1]); return;
+    }
+    const dx = v[0][0] - drag.p[0], dy = v[0][1] - drag.p[1];
+    if (!drag.moved && Math.hypot(dx, dy) < 5) return;
+    drag.moved = true; tip.style.display = 'none'; cv.style.cursor = 'grabbing';
+    const sc = W / (drag.view[2] - drag.view[0]);
+    st.user = [drag.view[0] - dx / sc, drag.view[1] - dy / sc, drag.view[2] - dx / sc, drag.view[3] - dy / sc];
+    st.anim = (st.anim || 0) + 1; drawFrame(st, W, H, st.user, true);
+  });
+  const end = e => { if (!pts.has(e.pointerId)) return; pts.delete(e.pointerId); const st = box._st;
+    if (pts.size) { const v = [...pts.values()]; drag = { moved: true, view: st.cur.slice(), p: v[0], d: 0, m: null }; return; }
+    const was = drag; drag = null; cv.style.cursor = '';
+    if (!was) return;
+    if (was.moved) { drawFrame(st, st.dims.W, st.dims.H, st.cur, false); return; }
+    if (e.type === 'pointerup') { const r = mapHit(st, e); if (r && r.a.l >= 0 && r.a.l !== S.l) { S.l = r.a.l; update(); } } };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.addEventListener('wheel', e => { if (!e.ctrlKey && !e.metaKey) return; e.preventDefault(); const p = rel(e); mapZoom(box._st, Math.exp(e.deltaY * 0.0025), p[0], p[1]); }, { passive: false });
+  const ctl = document.createElement('div'); ctl.className = 'mpctl noexp';
+  ctl.innerHTML = '<button data-z="in" title="Zoom in">+</button><button data-z="out" title="Zoom out">\u2212</button><button data-z="home" title="Back to the selected area">\u2302</button>';
+  box.appendChild(ctl);
+  ctl.querySelectorAll('button').forEach(b => b.onclick = () => { const st = box._st; if (b.dataset.z === 'home') { st.tkey = null; paintMap(st, true); } else mapZoom(st, b.dataset.z === 'in' ? 0.6 : 1 / 0.6); });
+}
 function mapHit(st, e) {
   if (!st || !st.paths) return null;
   const cv = st.box.querySelector('canvas'), rc = cv.getBoundingClientRect(), x = e.clientX - rc.left, y = e.clientY - rc.top;
@@ -2168,7 +2219,7 @@ function mapHit(st, e) {
   return null;
 }
 function mapHover(st, e) {
-  if (!st || !st.dims) return;
+  if (!st || !st.dims || e.buttons) return;
   const r = mapHit(st, e), box = st.box, tip = box.querySelector('.tip'), cv = box.querySelector('canvas');
   if (r !== st.hover) { st.hover = r; drawFrame(st, st.dims.W, st.dims.H, st.cur, false); }
   if (!r) { tip.style.display = 'none'; cv.style.cursor = ''; return; }
@@ -2200,7 +2251,7 @@ function renderMap() {
   const tv = geo.tv, px = (tv[2] - tv[0]) * 0.04, py = (tv[3] - tv[1]) * 0.05;
   const st = MAPS.cmp = Object.assign(MAPS.cmp || {}, { box: $('mpMap'), md, mode: S.mx === 'tor' ? 'tor' : 'gta', maxH: S.mx === 'tor' ? 560 : 640, vb: S.mx === 'tor' ? [tv[0] - px, tv[1] - py, tv[2] + px, tv[3] + py] : [0, 0, geo.w, geo.h], selArea: sel ? sel.a : null, selRegions: [] });
   paintMap(st, false);
-  $('mpNote').textContent = 'Each municipality and Toronto district is shaded by its ' + k.n.toLowerCase() + ' for ' + typeName().toLowerCase() + ' in ' + monthLabel(i) + (k.div ? '; red is a decline, blue an increase.' : '; darker means higher. The groups are recalculated for each month and measure, so compare colours within one map, not between maps.') + ' † fewer than ' + SMALL + ' sales in the month – treat with caution. ' + MAP_CREDIT;
+  $('mpNote').textContent = 'Each municipality and Toronto district is shaded by its ' + k.n.toLowerCase() + ' for ' + typeName().toLowerCase() + ' in ' + monthLabel(i) + (k.div ? '; red is a decline, blue an increase.' : '; darker means higher. The groups are recalculated for each month and measure, so compare colours within one map, not between maps.') + ' † fewer than ' + SMALL + ' sales in the month – treat with caution. Drag to move the map; zoom with + / \u2212, Ctrl + scroll or a pinch; \u2302 resets the view. ' + MAP_CREDIT;
 }
 
 /* --- main page: Location card, zoomed to the selected area --- */
@@ -2243,7 +2294,7 @@ function renderLocMap() {
   $('lmLeg').innerHTML = mapLegend(md);
   const st = MAPS.loc = Object.assign(MAPS.loc || {}, { box: $('lmMap'), md, mode: 'focus', fixedH: 440, vb: view.vb, selArea: view.area, selRegions: view.regions });
   paintMap(st, true);
-  $('lmNote').textContent = 'The map zooms to whichever area is selected above. Colours use the same seven equal-count groups across all 65 municipalities and Toronto districts as Compare Areas › Map' + (k.div ? ' (fixed bands for the 1-year change)' : '') + '; hatched areas had fewer than ' + SMALL + ' sales. Bordering-area figures compare each neighbour with the selected area. ' + MAP_CREDIT;
+  $('lmNote').textContent = 'The map zooms to whichever area is selected above. Colours use the same seven equal-count groups across all 65 municipalities and Toronto districts as Compare Areas › Map' + (k.div ? ' (fixed bands for the 1-year change)' : '') + '; hatched areas had fewer than ' + SMALL + ' sales. Drag to move the map; zoom with + / \u2212, Ctrl + scroll or a pinch; \u2302 returns to the selected area. Bordering-area figures compare each neighbour with the selected area. ' + MAP_CREDIT;
   $('lmFull').onclick = () => { S.mk = S.lm; S.mx = view.area && view.area.tor || name === 'City of Toronto' || name.startsWith('Toronto ') ? 'tor' : 'gta'; S.tab = 'map'; update(); window.scrollTo({ top: 0 }); };
 }
 
