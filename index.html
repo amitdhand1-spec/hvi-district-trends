@@ -154,6 +154,10 @@ body.lmfs-on{overflow:hidden}
 .lmwrap{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
 .lmside{display:grid;grid-template-columns:minmax(300px,1fr) minmax(280px,1fr);gap:8px 32px;border-top:1px solid #e6e3da;padding-top:12px}
 .lmside .lmcol h4:first-child{margin-top:0}
+.lmside .lmwide{grid-column:1/-1}
+.lmcols3{column-count:3;column-gap:32px}
+.lmcols3 .mpr{break-inside:avoid}
+@media (max-width:900px){.lmcols3{column-count:1}}
 @media (max-width:760px){.lmside{grid-template-columns:1fr}}
 .lmleg{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:11.5px}
 .lmleg .mpl{margin:0}
@@ -523,7 +527,7 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
           <button class="btn small cmapbtn" id="lmCmap" disabled>&#128205; Community map</button>
           <button class="btn sec small" id="lmStreets">Streets</button>
           <button class="btn sec small" id="lmCmpBtn" title="Compare the selected area with another, side by side (or Shift + click an area on the map)">Compare&hellip;</button>
-          <button class="btn sec small" id="lmReset" title="Put the map back to its starting view: zoom, measure, time slider, filters, comparison and search pin (the selected district stays)">Reset map</button>
+          <button class="btn sec small" id="lmReset" title="Back to the map the page opens with: TREB Overall (whole GTA), All Home Types, the latest month, median-price shading - clears the search pin, zoom, filters, comparison and time slider">Reset map</button>
           <span id="lmMsg"></span>
         </div>
         <div class="lmfind" id="lmFind" hidden></div>
@@ -2220,7 +2224,7 @@ function paintMap(st, animate) {
     const step = now => { if (id !== st.anim) return; const p = Math.min(1, (now - t0) / dur), e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
       // zoom in log space so the scale change feels even
       const wf = from[2] - from[0], wt = target[2] - target[0], w = wf * Math.pow(wt / wf, e), cx = (from[0] + from[2]) / 2 + ((target[0] + target[2]) / 2 - (from[0] + from[2]) / 2) * e, cy = (from[1] + from[3]) / 2 + ((target[1] + target[3]) / 2 - (from[1] + from[3]) / 2) * e, h = w * H / W;
-      drawFrame(st, W, H, [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], p < 1); if (p < 1) requestAnimationFrame(step); };
+      drawFrame(st, W, H, p < 1 ? [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2] : target, p < 1); if (p < 1) requestAnimationFrame(step); };   // the last frame lands exactly on the target
     requestAnimationFrame(step); return;
   }
   st.anim = (st.anim || 0) + 1; drawFrame(st, W, H, target, false);
@@ -2236,7 +2240,8 @@ function drawFrame(st, W, H, vb, moving) {
   box._st = st;
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
   cv.style.height = H + 'px';
-  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const c = cv.getContext('2d'); if (c.reset) c.reset(); else { c.setLineDash([]); c.globalAlpha = 1; c.lineJoin = 'miter'; c.lineCap = 'butt'; c.textAlign = 'start'; c.textBaseline = 'alphabetic'; }   // every frame starts from a clean drawing state
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
   const tx = x => x * sc + ox, ty = y => y * sc + oy;
   const inView = bb => !(bb[2] < vb[0] || bb[0] > vb[2] || bb[3] < vb[1] || bb[1] > vb[3]);
   const path = rings => { const p = new Path2D(); for (const r of rings) { p.moveTo(tx(r[0]), ty(r[1])); for (let j = 2; j < r.length; j += 2) p.lineTo(tx(r[j]), ty(r[j + 1])); p.closePath(); } return p; };
@@ -2573,8 +2578,10 @@ function renderLocMap() {
     const diff = (mk, a, b) => { if (a === null || b === null) return ''; const K2 = MK[mk]; const d = K2.div || K2.cats ? a - b : a / b - 1; return '<small class="' + (d > 0.0005 ? 'pos' : d < -0.0005 ? 'neg' : '') + '">' + (K2.div || K2.cats ? (d >= 0 ? '+' : '') + (d * 100).toFixed(1) + ' pts' : fmt.sp1(d)) + '</small>'; };
     side = '<div class="lmname"><b>' + name + '</b> <span class="vs">vs.</span> <b class="cmpn">' + cmp.n + '</b> <button class="lnk" id="lmCmpX" title="Stop comparing">×</button><br><small>' + monthLabel(i) + ' · ' + typeName() + ' · difference is ' + name.replace('Toronto ', '') + ' vs. ' + cmp.n.replace('Toronto ', '') + '</small></div>';
     side += '<table class="lmfig cmpt"><thead><tr><th></th><th>' + name.replace('Toronto ', '') + '</th><th>' + cmp.n.replace('Toronto ', '') + '</th><th></th></tr></thead><tbody>' + FIGS.map(mk => { const a = MK[mk].val(t, l, i), b = MK[mk].val(t, cmp.l, i); return '<tr' + (mk === S.lm ? ' class="on"' : '') + '><td>' + FL[mk] + '</td><td>' + MK[mk].f(a) + '</td><td>' + MK[mk].f(b) + '</td><td>' + diff(mk, a, b) + '</td></tr>'; }).join('') + '</tbody></table>';
-    const series = (li) => { const o = []; for (let j = Math.max(0, i - 59); j <= i; j++) o.push(medAt(t, li, j)); return o; };
-    side += '<div class="tsub" style="color:#77837e;margin-top:8px">Median price, last 5 years</div>' + cmpSpark(series(l), series(cmp.l), 300, 70, name.replace('Toronto ', ''), cmp.n.replace('Toronto ', ''));
+    // the 5-year chart goes in the right-hand column (the <h4> starts that column)
+    const nA = name.replace('Toronto ', ''), nB = cmp.n.replace('Toronto ', '');
+    side += '<h4>Median price \u2013 last 5 years \u00b7 ' + typeName() + '</h4><div class="lmleg" style="margin:0 0 4px"><span class="mpl"><i style="background:#c8a046;height:3px"></i>' + nA + '</span><span class="mpl"><i style="background:#7b4fa0;height:3px"></i>' + nB + '</span></div><div class="chart" id="lmCmpCh"></div>';
+    LM.cmpChart = { a: l, b: cmp.l, nA, nB, i };
   } else {
     const figs = FIGS.map(mk => { const x = MK[mk].val(t, l, i); return '<tr' + (mk === S.lm ? ' class="on"' : '') + '><td>' + FL[mk] + (mk === 'rent' ? ' <small>' + rentQ(i) + '</small>' : '') + '</td><td>' + MK[mk].f(x) + '</td><td>' + rank(mk, x, view.area) + '</td></tr>'; }).join('');
     const where = view.area ? view.area.r + (view.area.tor ? ' · City of Toronto' : '') : (locRegion(l) || (name === 'TREB Overall' ? 'Whole TRREB market area' : ''));
@@ -2600,19 +2607,30 @@ function renderLocMap() {
     const vals = list.map(li => [li, k.val(t, li, i)]).sort((a, b) => (b[1] === null ? -1e18 : b[1]) - (a[1] === null ? -1e18 : a[1]));
     if (vals.length) side += '<h4>' + head + '</h4>' + vals.map(([li, x]) => row(li, x, me)).join('') + (view.area ? '<div class="lmhint">Shift + click an area on the map (or use Compare…) to compare it side by side.</div>' : '');
   }
-  { const cut = side.indexOf('<h4>'); side = '<div class="lmcol">' + (cut >= 0 ? side.slice(0, cut) : side) + '</div><div class="lmcol">' + (cut >= 0 ? side.slice(cut) : '') + '</div>'; }
+  // no standing table under the map: the panel only appears for Compare (figures left, chart right) or Find areas (matching list)
+  { const cut = side.indexOf('<h4>');
+    if (cmp) side = '<div class="lmcol">' + (cut >= 0 ? side.slice(0, cut) : side) + '</div><div class="lmcol">' + (cut >= 0 ? side.slice(cut) : '') + '</div>';
+    else if (match && cut >= 0) { const rest = side.slice(cut), e = rest.indexOf('</h4>') + 5; side = '<div class="lmcol lmwide">' + rest.slice(0, e) + '<div class="lmcols3">' + rest.slice(e) + '</div></div>'; }
+    else side = ''; }
+  $('lmSide').style.display = side ? '' : 'none';
   $('lmSide').innerHTML = side;
+  if (cmp && LM.cmpChart && $('lmCmpCh')) {        // side-by-side comparison: both median-price lines on the dashboard's usual chart
+    const q = LM.cmpChart, full = li => M.map((_, j) => medAt(t, li, j));
+    drawChart($('lmCmpCh'), { height: 250, from: Math.max(0, q.i - 59), to: q.i, yFmt: fmt.usdK, lastFmt: fmt.usdK, lastLabel: [0, 1],
+      series: [{ type: 'line', data: full(q.a), color: '#c8a046', width: 2.6 }, { type: 'line', data: full(q.b), color: '#7b4fa0', width: 2.2, dash: [6, 4] }],
+      tip: j => '<b>' + monthLabel(j) + '</b><br><span style="color:#c8a046">\u25a0</span> ' + q.nA + ': ' + fmt.usd(medAt(t, q.a, j)) + '<br><span style="color:#b38bd6">\u25a0</span> ' + q.nB + ': ' + fmt.usd(medAt(t, q.b, j)) });
+  }
   $('lmSide').querySelectorAll('.mpr').forEach(e => e.onclick = ev => { const li = +e.dataset.l; if (ev.shiftKey || LM.cmpMode) { const a = geo.areas.find(x => x.l === li); if (a) { LM.cmp = a; LM.cmpMode = false; renderLocMap(); return; } } S.l = li; update(); });
   const cx = $('lmCmpX'); if (cx) cx.onclick = () => { LM.cmp = null; renderLocMap(); };
   $('lmLeg').innerHTML = mapLegend(md);
-  const full = lmFull(), lmH = full ? Math.max(360, window.innerHeight - 250) : S.lx ? Math.max(500, Math.min(860, window.innerHeight - 140)) : 500, kz = lmH / 440;   // bigger map = same zoom, more surroundings
+  const full = lmFull(), lmH = full ? Math.max(360, window.innerHeight - 250) : S.lx ? Math.max(700, Math.min(1000, window.innerHeight - 120)) : Math.max(560, Math.min(780, window.innerHeight - 220)), kz = lmH / 440;   // bigger map = same zoom, more surroundings
   const lvb = kz === 1 ? view.vb : (() => { const [a, b2, c2, d] = view.vb, cx2 = (a + c2) / 2, cy = (b2 + d) / 2, w = (c2 - a) * kz / 2, h = (d - b2) * kz / 2; return [cx2 - w, cy - h, cx2 + w, cy + h]; })();
   const st = MAPS.loc = Object.assign(MAPS.loc || {}, { box: $('lmMap'), md, mode: 'focus', fixedH: lmH, vb: lvb, tiles: true, focusComm: LM.focusComm, selArea: view.area, selRegions: view.regions, cmpArea: cmp, match, pin: LM.pin, cmpMode: LM.cmpMode,
     onCompare: a => { if (a.l === S.l) return; LM.cmp = a; LM.cmpMode = false; renderLocMap(); } });
   paintMap(st, true);
   $('lmNote').innerHTML = (k.cats ? 'Market balance follows TRREB’s usual reading of the sales-to-new-listings ratio: under 40% a buyer’s market, 40–60% balanced, over 60% a seller’s market. ' : k.br ? 'Colours use fixed bands' + (k.div ? ' (red below, blue above)' : '') + ', so they compare directly from month to month. ' : 'Colours use one fixed scale for this measure – seven equal-count groups over every month since ' + monthLabel(0) + ' – so they compare directly as you move the time slider. ') +
     (k.noType ? 'Rents are TRREB Rental Market Report averages for apartments (all bedroom types, quarterly); the property type selection does not apply. ' : '') +
-    'Hatched areas had fewer than ' + SMALL + ' sales. Drag to move the map; zoom with + / −, the mouse wheel or a pinch; ⌂ returns to the selected area. Address search uses OpenStreetMap (Nominatim). ' + MAP_CREDIT;
+    'Hatched areas had fewer than ' + SMALL + ' sales. Hover over an area for its figures; Shift + click another area (or use Compare\u2026) to compare it side by side. Drag to move the map; zoom with + / −, the mouse wheel or a pinch; ⌂ returns to the selected area. Address search uses OpenStreetMap (Nominatim). ' + MAP_CREDIT;
   const fb = $('lmFull'); fb.hidden = full; fb.textContent = S.lx ? 'Smaller map' : 'Larger map'; fb.title = S.lx ? 'Return the map to its normal size' : 'Make the map bigger, right here on this page';
   fb.onclick = () => { S.lx = !S.lx; renderLocMap(); if (S.lx) {        // bring the card's top just below the sticky control bar
       let bar = 0; for (const el of document.querySelectorAll('body *')) { const cs = getComputedStyle(el); if ((cs.position === 'sticky' || cs.position === 'fixed') && el.offsetHeight && el.getBoundingClientRect().top <= 1 && el.offsetHeight < innerHeight / 2) bar = Math.max(bar, el.getBoundingClientRect().bottom); }
@@ -2704,9 +2722,11 @@ function lmReset() {
   lmStop(); const card = $('cardLocMap');
   if (document.fullscreenElement) document.exitFullscreen(); card.classList.remove('lmfs'); document.body.classList.remove('lmfs-on');
   Object.assign(LM, { cmp: null, cmpMode: false, pin: null, pinLabel: '', pinQuery: '', pinComm: null, focusComm: null, filters: [], findOpen: false, msg: '', streets: true });
-  S.lm = 'median'; S.lmM = null; S.lx = false; $('lmQ').value = '';
-  if (MAPS.loc) { MAPS.loc.user = null; MAPS.loc.tkey = null; }
-  renderFind(); writeHash(); renderLocMap();
+  // the opening map: TREB Overall (whole GTA), All Home Types, the latest month, median-price shading, nothing searched or filtered
+  S.lm = S_DEFAULT.lm; S.lmM = null; S.lx = false; $('lmQ').value = '';
+  S.l = S_DEFAULT.l; S.t = S_DEFAULT.t; S.m = S_DEFAULT.m; LM.lastM = S.m;
+  if (MAPS.loc) { MAPS.loc.user = null; MAPS.loc.tkey = null; MAPS.loc.hover = null; }
+  renderFind(); update();
 }
 
 function cmpSpark(a, b, w, h, na, nb) {       // two median-price lines for the side-by-side comparison
