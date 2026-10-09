@@ -2729,8 +2729,7 @@ async function communityMapBlob() {
   c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.fillStyle = '#e8c26a'; c.font = font(38, '800'); c.fillText('Community Map', 34, 52);
   c.fillStyle = '#ffffff'; c.font = font(23, '600'); const addr = (LM.pinQuery || LM.pinLabel || '').slice(0, 90); c.fillText('Subject: ' + addr, 34, 88);
   c.font = font(19, '500'); c.fillStyle = '#d7e4dc'; const a = geo.areas.find(x => x.l === cm.l); c.fillText('Community: ' + cm.n + '  ·  ' + cm.m + (a ? '  ·  ' + a.r : '') + '  ·  PropTx community code ' + cm.code, 34, 115);
-  c.textAlign = 'right'; c.font = font(16, '600'); c.fillStyle = '#d7e4dc'; c.fillText(new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' }), W - 30, 46);
-  c.fillStyle = '#ffffff'; c.font = font(17, '700'); c.fillText('Home Value Inc.', W - 30, 72);
+  headerLogo(c, W, HEAD);
   c.fillStyle = '#ffffff'; c.fillRect(0, HEAD + MH, W, FOOT); c.fillStyle = '#4b5853'; c.font = font(14.5, '500'); c.textAlign = 'left';
   c.fillText('Red outline: subject community. Purple lines: neighbouring communities. Dashed: TRREB district / municipal boundary.', 24, HEAD + MH + 26);
   c.fillText('Community boundaries: PropTx community map (as published August 2025). ' + (streets ? 'Base map ' + BASE_CREDIT[LM.base === 'satellite' ? 'satellite' : 'streets'] + '.' : 'Street base map unavailable – shoreline © Statistics Canada.'), 24, HEAD + MH + 49);
@@ -2777,14 +2776,22 @@ async function reportTiles(c, kind, geo, vb, W, top, MH) {
   const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * ((gy0 + gy1) / 2) / (256 * Math.pow(2, z))))) * 180 / Math.PI;
   return { n, mpp: 156543.03392 * Math.cos(lat * Math.PI / 180) / Math.pow(2, z) / f };
 }
+// company logo (the white HVI Appraisal mark from the dashboard banner) at the top right of every report image, date beside it
+function headerLogo(c, W, HEAD) {
+  const img = document.querySelector('.badge img'), date = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+  let left = W - 30;
+  if (img && img.complete && img.naturalWidth) { const h = HEAD - 30, w = h * img.naturalWidth / img.naturalHeight; left = W - 28 - w; c.drawImage(img, left, 12, w, h); left -= 26; }
+  c.textAlign = 'right'; c.textBaseline = 'alphabetic'; c.font = RFONT(16, '600'); c.fillStyle = '#d7e4dc'; c.fillText(date, left, 52);
+  if (!(img && img.complete && img.naturalWidth)) { c.fillStyle = '#ffffff'; c.font = RFONT(17, '700'); c.fillText('Home Value Inc.', left, 78); }
+  c.textAlign = 'left';
+}
 const RFONT = (sz, wt) => wt + ' ' + sz + 'px system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif';
 function reportHeader(c, W, HEAD, title, line1, line2) {
   c.fillStyle = '#123d2f'; c.fillRect(0, 0, W, HEAD); c.fillStyle = '#c9a646'; c.fillRect(0, HEAD - 5, W, 5);
   c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.fillStyle = '#e8c26a'; c.font = RFONT(38, '800'); c.fillText(title, 34, 52);
   c.fillStyle = '#ffffff'; c.font = RFONT(23, '600'); c.fillText(line1.slice(0, 95), 34, 88);
   c.font = RFONT(19, '500'); c.fillStyle = '#d7e4dc'; c.fillText(line2.slice(0, 130), 34, 115);
-  c.textAlign = 'right'; c.font = RFONT(16, '600'); c.fillStyle = '#d7e4dc'; c.fillText(new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' }), W - 30, 46);
-  c.fillStyle = '#ffffff'; c.font = RFONT(17, '700'); c.fillText('Home Value Inc.', W - 30, 72); c.textAlign = 'left';
+  headerLogo(c, W, HEAD); c.textAlign = 'left';
 }
 function reportScaleNorth(c, W, top, MH, mpp) {
   c.fillStyle = 'rgba(255,255,255,.92)'; c.fillRect(W - 78, top + 16, 58, 76); c.fillStyle = '#1b2320'; c.beginPath(); c.moveTo(W - 49, top + 26); c.lineTo(W - 62, top + 62); c.lineTo(W - 49, top + 54); c.lineTo(W - 36, top + 62); c.closePath(); c.fill(); c.font = RFONT(18, '800'); c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.fillText('N', W - 49, top + 80);
