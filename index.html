@@ -2623,7 +2623,7 @@ function renderLocMap() {
   $('lmSide').querySelectorAll('.mpr').forEach(e => e.onclick = ev => { const li = +e.dataset.l; if (ev.shiftKey || LM.cmpMode) { const a = geo.areas.find(x => x.l === li); if (a) { LM.cmp = a; LM.cmpMode = false; renderLocMap(); return; } } S.l = li; update(); });
   const cx = $('lmCmpX'); if (cx) cx.onclick = () => { LM.cmp = null; renderLocMap(); };
   $('lmLeg').innerHTML = mapLegend(md);
-  const full = lmFull(), lmH = full ? Math.max(360, window.innerHeight - 250) : S.lx ? Math.max(700, Math.min(1000, window.innerHeight - 120)) : Math.max(560, Math.min(780, window.innerHeight - 220)), kz = lmH / 440;   // bigger map = same zoom, more surroundings
+  const full = lmFull(), lmH = full ? Math.max(360, window.innerHeight - 250) : S.lx ? Math.max(700, Math.min(1000, window.innerHeight - 120)) : 500, kz = lmH / 440;   // bigger map = same zoom, more surroundings
   const lvb = kz === 1 ? view.vb : (() => { const [a, b2, c2, d] = view.vb, cx2 = (a + c2) / 2, cy = (b2 + d) / 2, w = (c2 - a) * kz / 2, h = (d - b2) * kz / 2; return [cx2 - w, cy - h, cx2 + w, cy + h]; })();
   const st = MAPS.loc = Object.assign(MAPS.loc || {}, { box: $('lmMap'), md, mode: 'focus', fixedH: lmH, vb: lvb, tiles: true, focusComm: LM.focusComm, selArea: view.area, selRegions: view.regions, cmpArea: cmp, match, pin: LM.pin, cmpMode: LM.cmpMode,
     onCompare: a => { if (a.l === S.l) return; LM.cmp = a; LM.cmpMode = false; renderLocMap(); } });
