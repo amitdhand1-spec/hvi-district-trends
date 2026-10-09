@@ -2935,12 +2935,12 @@ async function compsMapImage() {
   c.lineJoin = 'round'; const sat = LM.base === 'satellite';
   for (const a of geo.areas) if (inV(a.bb)) { c.save(); c.setLineDash([14, 7]); c.strokeStyle = sat ? '#ffe08a' : '#1b2a4a'; c.lineWidth = 3; c.stroke(pathOf(a.rings)); c.restore(); }
   if (LM.pinComm) { const sp = pathOf(LM.pinComm.rings); c.strokeStyle = '#ffffff'; c.lineWidth = 8; c.stroke(sp); c.strokeStyle = '#c62828'; c.lineWidth = 4; c.stroke(sp); }
+  if (pin) drawSubjectPin(c, tx(pin[0]), ty(pin[1]), W, HEAD);      // subject first, so nearby comparables stay visible on top
   comps.forEach((p, j) => { const x = tx(p.ux), y = ty(p.uy);
     c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 8; c.fillStyle = '#1f4e8c'; c.strokeStyle = '#fff'; c.lineWidth = 4; c.beginPath(); c.arc(x, y, 22, 0, 7); c.fill(); c.stroke(); c.restore();
     c.fillStyle = '#fff'; c.font = RFONT(22, '800'); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(j + 1), x, y + 1);
     if (p.km !== null && p.km !== undefined) { const t = fmtKm(p.km); c.font = RFONT(18, '700'); const tw = c.measureText(t).width + 16; const bx = Math.min(W - tw - 6, x + 26); c.fillStyle = 'rgba(255,255,255,.95)'; c.fillRect(bx, y - 15, tw, 30); c.strokeStyle = '#1f4e8c'; c.lineWidth = 1.5; c.strokeRect(bx, y - 15, tw, 30); c.fillStyle = '#1f4e8c'; c.textAlign = 'left'; c.fillText(t, bx + 8, y + 1); }
   });
-  if (pin) drawSubjectPin(c, tx(pin[0]), ty(pin[1]), W, HEAD);
   reportScaleNorth(c, W, HEAD, MH, tl.mpp);
   c.restore();
   const a = pin ? areaAt(pin[0], pin[1]) : null;
