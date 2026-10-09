@@ -151,7 +151,10 @@ body.lmfs-on{overflow:hidden}
 #cmapOv .cmimg img{max-width:100%;max-height:72vh;display:block;border:1px solid #e6e3da}
 #cmapOv .cmft{display:flex;gap:8px;align-items:center;padding:10px 14px;border-top:1px solid #e6e3da}
 #cmapOv .cmhint{font-size:12px;color:#77837e}
-.lmwrap{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start}
+.lmwrap{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+.lmside{display:grid;grid-template-columns:minmax(300px,1fr) minmax(280px,1fr);gap:8px 32px;border-top:1px solid #e6e3da;padding-top:12px}
+.lmside .lmcol h4:first-child{margin-top:0}
+@media (max-width:760px){.lmside{grid-template-columns:1fr}}
 .lmleg{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:11.5px}
 .lmleg .mpl{margin:0}
 .lmname{margin-bottom:6px;font-size:13px}
@@ -2122,7 +2125,7 @@ const MAP_SEQ = ['#eaf1f7', '#cddfec', '#a9c7de', '#7ea9cb', '#5589b4', '#326c9a
 const MAP_DIV = ['#a8322d', '#d77462', '#f1b8a8', '#e8e2d2', '#b9cfe2', '#6f9cc4', '#2b628f'];
 const MAP_NA = '#e2e1dc';
 const COMM_SC = 2.6;   // screen px per map unit (about 57 m per px) from which community outlines appear
-const MAP_CREDIT = 'District outlines traced from TRREB’s community map; municipal boundaries, shoreline and freeways © Statistics Canada 2021 / National Road Network (Open Government Licence – Canada).';
+const MAP_CREDIT = 'Community, district and municipal boundaries from the PropTx community map (August 2025 release), clipped to the Statistics Canada 2021 shoreline; freeways \u00a9 Statistics Canada 2021 / National Road Network (Open Government Licence \u2013 Canada).';
 let MG = null;   // decoded geometry, built once
 function mapGeo() {
   if (MG || !D.map) return MG;
@@ -2376,7 +2379,7 @@ function mapInteract(box, cv, tip) {
     if (st.onCompare && (e.shiftKey || st.cmpMode)) { st.onCompare(r.a); return; }
     if (r.a.l !== S.l) { S.l = r.a.l; update(); } };
   cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
-  cv.addEventListener('wheel', e => { if (!e.ctrlKey && !e.metaKey) return; e.preventDefault(); const p = rel(e); mapZoom(box._st, Math.exp(e.deltaY * 0.0025), p[0], p[1]); }, { passive: false });
+  cv.addEventListener('wheel', e => { e.preventDefault(); const p = rel(e), d = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY; mapZoom(box._st, Math.exp(Math.max(-300, Math.min(300, d)) * (e.ctrlKey ? 0.006 : 0.0022)), p[0], p[1]); }, { passive: false });
   const ctl = document.createElement('div'); ctl.className = 'mpctl noexp';
   ctl.innerHTML = '<button data-z="in" title="Zoom in">+</button><button data-z="out" title="Zoom out">−</button><button data-z="home" title="Back to the selected area">⌂</button>';
   box.appendChild(ctl);
@@ -2440,7 +2443,7 @@ function renderMap() {
   const tv = geo.tv, px = (tv[2] - tv[0]) * 0.04, py = (tv[3] - tv[1]) * 0.05;
   const st = MAPS.cmp = Object.assign(MAPS.cmp || {}, { box: $('mpMap'), md, mode: S.mx === 'tor' ? 'tor' : 'gta', maxH: S.mx === 'tor' ? 560 : 640, vb: S.mx === 'tor' ? [tv[0] - px, tv[1] - py, tv[2] + px, tv[3] + py] : [0, 0, geo.w, geo.h], selArea: sel ? sel.a : null, selRegions: [] });
   paintMap(st, false);
-  $('mpNote').textContent = 'Each municipality and Toronto district is shaded by its ' + k.n.toLowerCase() + (k.noType ? ' (TRREB Rental Market Report, apartments, all bedroom types)' : ' for ' + typeName().toLowerCase() + ' in ' + monthLabel(i)) + (k.cats ? '.' : k.div ? '; red is a decline, blue an increase.' : k.br ? '; darker means higher.' : '; darker means higher. The groups are recalculated for each month and measure, so compare colours within one map, not between maps.') + ' † fewer than ' + SMALL + ' sales in the month – treat with caution. Drag to move the map; zoom with + / −, Ctrl + scroll or a pinch; ⌂ resets the view. ' + MAP_CREDIT;
+  $('mpNote').textContent = 'Each municipality and Toronto district is shaded by its ' + k.n.toLowerCase() + (k.noType ? ' (TRREB Rental Market Report, apartments, all bedroom types)' : ' for ' + typeName().toLowerCase() + ' in ' + monthLabel(i)) + (k.cats ? '.' : k.div ? '; red is a decline, blue an increase.' : k.br ? '; darker means higher.' : '; darker means higher. The groups are recalculated for each month and measure, so compare colours within one map, not between maps.') + ' † fewer than ' + SMALL + ' sales in the month – treat with caution. Drag to move the map; zoom with + / −, the mouse wheel or a pinch; ⌂ resets the view. ' + MAP_CREDIT;
 }
 
 /* --- main page: Location card, zoomed to the selected area, with its own time slider, search, filter and compare --- */
@@ -2597,18 +2600,19 @@ function renderLocMap() {
     const vals = list.map(li => [li, k.val(t, li, i)]).sort((a, b) => (b[1] === null ? -1e18 : b[1]) - (a[1] === null ? -1e18 : a[1]));
     if (vals.length) side += '<h4>' + head + '</h4>' + vals.map(([li, x]) => row(li, x, me)).join('') + (view.area ? '<div class="lmhint">Shift + click an area on the map (or use Compare…) to compare it side by side.</div>' : '');
   }
+  { const cut = side.indexOf('<h4>'); side = '<div class="lmcol">' + (cut >= 0 ? side.slice(0, cut) : side) + '</div><div class="lmcol">' + (cut >= 0 ? side.slice(cut) : '') + '</div>'; }
   $('lmSide').innerHTML = side;
   $('lmSide').querySelectorAll('.mpr').forEach(e => e.onclick = ev => { const li = +e.dataset.l; if (ev.shiftKey || LM.cmpMode) { const a = geo.areas.find(x => x.l === li); if (a) { LM.cmp = a; LM.cmpMode = false; renderLocMap(); return; } } S.l = li; update(); });
   const cx = $('lmCmpX'); if (cx) cx.onclick = () => { LM.cmp = null; renderLocMap(); };
   $('lmLeg').innerHTML = mapLegend(md);
-  const full = lmFull(), lmH = full ? Math.max(360, window.innerHeight - 250) : S.lx ? Math.max(440, Math.min(820, window.innerHeight - 140)) : 440, kz = lmH / 440;   // bigger map = same zoom, more surroundings
+  const full = lmFull(), lmH = full ? Math.max(360, window.innerHeight - 250) : S.lx ? Math.max(500, Math.min(860, window.innerHeight - 140)) : 500, kz = lmH / 440;   // bigger map = same zoom, more surroundings
   const lvb = kz === 1 ? view.vb : (() => { const [a, b2, c2, d] = view.vb, cx2 = (a + c2) / 2, cy = (b2 + d) / 2, w = (c2 - a) * kz / 2, h = (d - b2) * kz / 2; return [cx2 - w, cy - h, cx2 + w, cy + h]; })();
   const st = MAPS.loc = Object.assign(MAPS.loc || {}, { box: $('lmMap'), md, mode: 'focus', fixedH: lmH, vb: lvb, tiles: true, focusComm: LM.focusComm, selArea: view.area, selRegions: view.regions, cmpArea: cmp, match, pin: LM.pin, cmpMode: LM.cmpMode,
     onCompare: a => { if (a.l === S.l) return; LM.cmp = a; LM.cmpMode = false; renderLocMap(); } });
   paintMap(st, true);
   $('lmNote').innerHTML = (k.cats ? 'Market balance follows TRREB’s usual reading of the sales-to-new-listings ratio: under 40% a buyer’s market, 40–60% balanced, over 60% a seller’s market. ' : k.br ? 'Colours use fixed bands' + (k.div ? ' (red below, blue above)' : '') + ', so they compare directly from month to month. ' : 'Colours use one fixed scale for this measure – seven equal-count groups over every month since ' + monthLabel(0) + ' – so they compare directly as you move the time slider. ') +
     (k.noType ? 'Rents are TRREB Rental Market Report averages for apartments (all bedroom types, quarterly); the property type selection does not apply. ' : '') +
-    'Hatched areas had fewer than ' + SMALL + ' sales. Drag to move the map; zoom with + / −, Ctrl + scroll or a pinch; ⌂ returns to the selected area. Address search uses OpenStreetMap (Nominatim). ' + MAP_CREDIT;
+    'Hatched areas had fewer than ' + SMALL + ' sales. Drag to move the map; zoom with + / −, the mouse wheel or a pinch; ⌂ returns to the selected area. Address search uses OpenStreetMap (Nominatim). ' + MAP_CREDIT;
   const fb = $('lmFull'); fb.hidden = full; fb.textContent = S.lx ? 'Smaller map' : 'Larger map'; fb.title = S.lx ? 'Return the map to its normal size' : 'Make the map bigger, right here on this page';
   fb.onclick = () => { S.lx = !S.lx; renderLocMap(); if (S.lx) {        // bring the card's top just below the sticky control bar
       let bar = 0; for (const el of document.querySelectorAll('body *')) { const cs = getComputedStyle(el); if ((cs.position === 'sticky' || cs.position === 'fixed') && el.offsetHeight && el.getBoundingClientRect().top <= 1 && el.offsetHeight < innerHeight / 2) bar = Math.max(bar, el.getBoundingClientRect().bottom); }
