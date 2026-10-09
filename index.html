@@ -151,6 +151,20 @@ body.lmfs-on{overflow:hidden}
 #cmapOv .cmimg img{max-width:100%;max-height:72vh;display:block;border:1px solid #e6e3da}
 #cmapOv .cmft{display:flex;gap:8px;align-items:center;padding:10px 14px;border-top:1px solid #e6e3da}
 #cmapOv .cmhint{font-size:12px;color:#77837e}
+.lmrep{margin-top:-4px}.lmreplab{font-size:12px;color:#5d6b66;font-weight:600}
+.repbtn{background:#123d2f;border-color:#123d2f}.repbtn:disabled{background:#b9c7c0;border-color:#b9c7c0;cursor:not-allowed}
+.rwrap{position:relative;display:inline-block}
+.lmrecent{position:absolute;left:0;top:calc(100% + 4px);z-index:30;background:#fff;border:1px solid #d6d2c8;border-radius:8px;box-shadow:0 8px 24px #0002;min-width:320px;max-width:420px;padding:6px}
+.lmrecent .rhd{font-size:12px;color:#5d6b66;padding:4px 6px 6px}.lmrecent .rhd small{color:#99a39f}
+.lmrecent .ritem{display:flex;justify-content:space-between;gap:10px;width:100%;border:0;background:none;text-align:left;padding:6px;border-radius:6px;cursor:pointer;font:inherit;font-size:12.5px}
+.lmrecent .ritem:hover{background:#eef3f8}.lmrecent .ritem small{color:#77837e;white-space:nowrap}
+.lmrecent .lnk2{margin:6px}
+.lmcomps textarea{width:100%;font:inherit;font-size:13px;padding:6px 8px;border:1px solid #c9cfcb;border-radius:6px;resize:vertical}
+.ctab{width:100%;border-collapse:collapse;margin-top:8px;font-size:12.5px}.ctab th{text-align:left;color:#77837e;font-weight:600;padding:3px 6px}.ctab td{padding:4px 6px;border-top:1px solid #e6e3da}
+.cnum{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#1f4e8c;color:#fff;font-weight:700;font-size:11px}
+.cbad{color:#b3261e;font-size:11.5px}
+.mpl i.arr{width:0;height:0;border:0;border-left:6px solid transparent;border-right:6px solid transparent;border-radius:0}
+.mpl i.arr.up{border-bottom:10px solid #1f7a4d}.mpl i.arr.dn{border-top:10px solid #b3261e;margin-left:-4px}
 .lmwrap{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
 .lmside{display:grid;grid-template-columns:minmax(300px,1fr) minmax(280px,1fr);gap:8px 32px;border-top:1px solid #e6e3da;padding-top:12px}
 .lmside .lmcol h4:first-child{margin-top:0}
@@ -522,15 +536,23 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
       <div class="grid noexp" id="locRow"><div class="card" id="cardLocMap">
         <div class="hd"><div><h3 id="lmTitle">Location</h3><div class="st" id="lmSub"></div></div><div class="r"><label class="lmlab">Shade by <select id="lmMet" class="mpdd"></select></label><button class="btn sec small" id="lmFs" title="Show the map full screen">Full screen</button><button class="btn sec small" id="lmFull">Larger map</button></div></div>
         <div class="lmbar">
-          <form id="lmSearch" autocomplete="off"><input id="lmQ" list="lmList" placeholder="Search an area, district code, address or postal code&hellip;" aria-label="Search the map"><button class="btn small">Go</button></form><datalist id="lmList"></datalist>
+          <form id="lmSearch" autocomplete="off"><input id="lmQ" list="lmList" placeholder="Search an area, district code, address or postal code&hellip;" aria-label="Search the map"><button class="btn small">Go</button><span class="rwrap"><button type="button" class="btn sec small" id="lmRecentBtn" title="Subjects you searched recently (kept in this browser)">Recent &#9662;</button><div class="lmrecent" id="lmRecent" hidden></div></span></form><datalist id="lmList"></datalist>
           <button class="btn sec small" id="lmFindBtn" title="Highlight the areas that meet conditions you set">Find areas&hellip;</button>
-          <button class="btn small cmapbtn" id="lmCmap" disabled>&#128205; Community map</button>
-          <button class="btn sec small" id="lmStreets">Streets</button>
+          <button class="btn sec small" id="lmCompsBtn" title="Put your comparables on the map, numbered, with distances from the subject">Comparables&hellip;</button>
           <button class="btn sec small" id="lmCmpBtn" title="Compare the selected area with another, side by side (or Shift + click an area on the map)">Compare&hellip;</button>
-          <button class="btn sec small" id="lmReset" title="Back to the map the page opens with: TREB Overall (whole GTA), All Home Types, the latest month, median-price shading - clears the search pin, zoom, filters, comparison and time slider">Reset map</button>
+          <label class="lmlab" title="Background shown once you zoom in to community level">Base <select id="lmBase" class="mpdd"><option value="streets">Streets</option><option value="satellite">Satellite</option><option value="none">None</option></select></label>
+          <button class="btn sec small" id="lmArrows" title="Arrows beside each area name: is the median price trending up or down?">Trend arrows</button>
+          <button class="btn sec small" id="lmReset" title="Back to the map the page opens with: TREB Overall (whole GTA), All Home Types, the latest month, median-price shading - clears the search pin, comparables, zoom, filters, comparison and time slider">Reset map</button>
+        </div>
+        <div class="lmbar lmrep"><span class="lmreplab">Report images:</span>
+          <button class="btn small cmapbtn" id="lmCmap" disabled>&#128205; Community map</button>
+          <button class="btn small repbtn" id="lmCompsMap" disabled>Comparables map</button>
+          <button class="btn small repbtn" id="lmSnap" title="One landscape image of the selected area's market: key figures, 5-year price trend, sales">Market snapshot</button>
+          <button class="btn small repbtn" id="lmBrief" title="A one-page brief for the selected area: map, figures, trends, commentary and neighbouring areas (PNG or PDF)">Area brief</button>
           <span id="lmMsg"></span>
         </div>
         <div class="lmfind" id="lmFind" hidden></div>
+        <div class="lmfind lmcomps" id="lmComps" hidden></div>
         <div class="lmwrap"><div><div class="mpmap chart" id="lmMap"></div>
           <div class="lmtime"><button class="btn sec small" id="lmPlay" title="Play through the months">&#9654;</button><input type="range" id="lmT" min="0" step="1" aria-label="Map month"><span id="lmTlab"></span><button class="lnk2" id="lmTnow" hidden>Back to the dashboard month</button></div>
           <div class="lmleg" id="lmLeg"></div></div><div class="mpside lmside" id="lmSide"></div></div>
@@ -2196,6 +2218,7 @@ function mapData(mk, i, pooled) {   // values, colours and ranking of all mapped
   const rows = geo.areas.map(a => ({ a, val: a.l >= 0 ? k.val(t, a.l, i) : null, sales: a.l >= 0 ? v(t, a.l, 'sales', i) : null }));
   const cl = mapClasses(k, rows.map(r => r.val), pooled ? mk + '|' + t : null);
   rows.forEach(r => { r.col = mapColour(r.val, cl); r.small = !k.noType && r.sales !== null && r.sales < SMALL; });
+  rows.forEach(r => { if (r.a.l >= 0) r.tr = medTrend(t, r.a.l, i); });
   const ranked = rows.filter(r => r.val !== null).sort((x, y) => y.val - x.val);
   return { k, mk, rows, cl, ranked, i, pooled };
 }
@@ -2252,15 +2275,15 @@ function drawFrame(st, W, H, vb, moving) {
   for (const rings of geo.ctx) { const p = path(rings); c.fill(p, 'evenodd'); c.stroke(p); }
   const commOn = geo.comm.length && sc >= COMM_SC && st.comm !== false;
   st.tilesOn = false;
-  if (st.tiles && commOn && LM.streets) {
+  if (st.tiles && commOn && LM.base !== 'none') {
     const z = Math.max(10, Math.min(18, Math.round(Math.log2(sc * 360 * geo.K / 256)))), [gx0, gy0] = geo.gpx(vb[0], vb[1], z), [gx1, gy1] = geo.gpx(vb[2], vb[3], z), f = W / (gx1 - gx0);
     let any = false; const redraw = () => { clearTimeout(st.tileT); st.tileT = setTimeout(() => { if (st.cur) drawFrame(st, st.dims.W, st.dims.H, st.cur, false); }, 60); };
     for (let x = Math.floor(gx0 / 256); x <= Math.floor(gx1 / 256); x++) for (let y = Math.floor(gy0 / 256); y <= Math.floor(gy1 / 256); y++) {
-      const t = osmTile(z, x, y, redraw); if (t.ok) { c.drawImage(t.img, (x * 256 - gx0) * f, (y * 256 - gy0) * f, 256 * f + 0.5, 256 * f + 0.5); any = true; } }
+      const t = baseTile(LM.base, z, x, y, redraw); if (t.ok) { c.drawImage(t.img, (x * 256 - gx0) * f, (y * 256 - gy0) * f, 256 * f + 0.5, 256 * f + 0.5); any = true; } }
     st.tilesOn = any;
   }
   st.paths = [];
-  c.save(); if (st.tilesOn) c.globalAlpha = 0.42;
+  c.save(); if (st.tilesOn) c.globalAlpha = LM.base === 'satellite' ? 0.22 : 0.42;
   for (const r of md.rows) { if (!inView(r.a.bb)) continue; const p = path(r.a.rings); st.paths.push([p, r]); c.fillStyle = r.col; c.fill(p, 'evenodd'); }
   c.restore();
   c.save(); c.globalAlpha = 0.55; c.strokeStyle = '#a07a3a'; c.lineWidth = near ? 1.3 : 0.9; c.lineJoin = 'round';   // 400-series & freeways
@@ -2270,7 +2293,7 @@ function drawFrame(st, W, H, vb, moving) {
   c.strokeStyle = '#2f3b37'; c.lineWidth = near ? 1.6 : 1.3;                   // region / Toronto West-Central-East outlines
   for (const g of geo.regions) if (inView(g.bb)) c.stroke(path(g.rings));
   st.commPaths = [];
-  if (commOn) { c.save(); c.strokeStyle = st.tilesOn ? 'rgba(60,40,90,.85)' : 'rgba(40,52,48,.7)'; c.lineWidth = st.tilesOn ? 1.3 : 0.8; c.setLineDash(st.tilesOn ? [] : [4, 3]);
+  if (commOn) { c.save(); c.strokeStyle = st.tilesOn ? (LM.base === 'satellite' ? 'rgba(255,255,255,.95)' : 'rgba(60,40,90,.85)') : 'rgba(40,52,48,.7)'; c.lineWidth = st.tilesOn ? 1.3 : 0.8; c.setLineDash(st.tilesOn ? [] : [4, 3]);
     for (const cm of geo.comm) { if (!inView(cm.bb)) continue; const p = path(cm.rings); st.commPaths.push([p, cm]); c.stroke(p); } c.restore(); }
   for (const [p, r] of st.paths) if (r.small && r.val !== null) { c.save(); c.clip(p, 'evenodd'); c.strokeStyle = 'rgba(40,40,40,.28)'; c.lineWidth = 1; c.beginPath(); for (let x = -H; x < W; x += 6) { c.moveTo(x, H); c.lineTo(x + H, 0); } c.stroke(); c.restore(); }
   // "find areas" filter: fade everything that doesn't match
@@ -2287,6 +2310,7 @@ function drawFrame(st, W, H, vb, moving) {
     c.save(); c.fillStyle = '#c62828'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.moveTo(px, py); c.bezierCurveTo(px - 11, py - 14, px - 9, py - 27, px, py - 27); c.bezierCurveTo(px + 9, py - 27, px + 11, py - 14, px, py); c.closePath(); c.fill(); c.stroke();
     c.fillStyle = '#fff'; c.beginPath(); c.arc(px, py - 18, 3.6, 0, 7); c.fill(); c.restore();
   }
+  drawComps(c, st, tx, ty, W, H);
   st.dims = { W, H };
   if (moving) return;      // labels are skipped while the view is moving
   c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
@@ -2311,6 +2335,7 @@ function drawFrame(st, W, H, vb, moving) {
     const b2 = two ? [x - w / 2, y - fs * 1.2, x + w / 2, y + fs * 1.15] : [x - w / 2, y - size * 0.65, x + w / 2, y + size * 0.65];
     if (hit(b2)) continue; placed.push(b2);
     lab(nm, x, y - (two ? fs * 0.55 : 0), size, faint ? '600' : '700', faint ? '#5d6b66' : '#1b2320');
+    if (st.arrows && !faint && r.tr !== undefined) drawTrendArrow(c, x + wn / 2 + 9, y - (two ? fs * 0.55 : 0), r.tr, Math.max(8, fs * 0.8));
     if (two) lab(vtxt, x, y + fs * 0.6, fs * 0.85, '500', '#33413c');
   }
   if (commOn) {          // community names, the searched one first
@@ -2321,7 +2346,7 @@ function drawFrame(st, W, H, vb, moving) {
       const b2 = [x - w / 2, y - size * 0.65, x + w / 2, y + size * 0.65]; if (hit(b2)) continue; placed.push(b2);
       lab(cm.n, x, y, size, isF ? '700' : '600', isF ? '#b3261e' : '#3b2f5c'); }
   }
-  if (st.tilesOn) { c.font = font(10, '500'); c.textAlign = 'right'; c.textBaseline = 'bottom'; const tt = '\u00a9 OpenStreetMap contributors'; const tw = c.measureText(tt).width;
+  if (st.tilesOn) { c.font = font(10, '500'); c.textAlign = 'right'; c.textBaseline = 'bottom'; const tt = BASE_CREDIT[LM.base] || BASE_CREDIT.streets; const tw = c.measureText(tt).width;
     c.fillStyle = 'rgba(255,255,255,.8)'; c.fillRect(W - tw - 10, H - 16, tw + 10, 16); c.fillStyle = '#33413c'; c.fillText(tt, W - 5, H - 3); c.textAlign = 'center'; c.textBaseline = 'middle'; }
   // highway shields: one per route, near the middle of its longest stretch in view, where nothing else is
   if (sc > 0.55) {
@@ -2446,13 +2471,13 @@ function renderMap() {
   $('mpSide').innerHTML = side;
   $('mpSide').querySelectorAll('.mpr').forEach(e => e.onclick = () => { const l = +e.dataset.l; if (l >= 0) { S.l = l; update(); } });
   const tv = geo.tv, px = (tv[2] - tv[0]) * 0.04, py = (tv[3] - tv[1]) * 0.05;
-  const st = MAPS.cmp = Object.assign(MAPS.cmp || {}, { box: $('mpMap'), md, mode: S.mx === 'tor' ? 'tor' : 'gta', maxH: S.mx === 'tor' ? 560 : 640, vb: S.mx === 'tor' ? [tv[0] - px, tv[1] - py, tv[2] + px, tv[3] + py] : [0, 0, geo.w, geo.h], selArea: sel ? sel.a : null, selRegions: [] });
+  const st = MAPS.cmp = Object.assign(MAPS.cmp || {}, { box: $('mpMap'), md, mode: S.mx === 'tor' ? 'tor' : 'gta', maxH: S.mx === 'tor' ? 560 : 640, vb: S.mx === 'tor' ? [tv[0] - px, tv[1] - py, tv[2] + px, tv[3] + py] : [0, 0, geo.w, geo.h], selArea: sel ? sel.a : null, selRegions: [], arrows: true });
   paintMap(st, false);
   $('mpNote').textContent = 'Each municipality and Toronto district is shaded by its ' + k.n.toLowerCase() + (k.noType ? ' (TRREB Rental Market Report, apartments, all bedroom types)' : ' for ' + typeName().toLowerCase() + ' in ' + monthLabel(i)) + (k.cats ? '.' : k.div ? '; red is a decline, blue an increase.' : k.br ? '; darker means higher.' : '; darker means higher. The groups are recalculated for each month and measure, so compare colours within one map, not between maps.') + ' † fewer than ' + SMALL + ' sales in the month – treat with caution. Drag to move the map; zoom with + / −, the mouse wheel or a pinch; ⌂ resets the view. ' + MAP_CREDIT;
 }
 
 /* --- main page: Location card, zoomed to the selected area, with its own time slider, search, filter and compare --- */
-const LM = { play: null, cmp: null, cmpMode: false, pin: null, pinLabel: '', filters: [], findOpen: false, msg: '', focusComm: null, streets: true };
+const LM = { play: null, cmp: null, cmpMode: false, pin: null, pinLabel: '', filters: [], findOpen: false, msg: '', focusComm: null, base: 'streets', arrows: true, comps: [], compsOpen: false, compsText: '', pinLL: null };
 function locView(geo) {      // what to frame and outline for the selected location
   const name = LOCS[S.l], area = geo.areas.find(a => a.l === S.l);
   const grow = (bb, f, minW) => { const cx = (bb[0] + bb[2]) / 2, cy = (bb[1] + bb[3]) / 2, w = Math.max((bb[2] - bb[0]) * f, minW), h = Math.max((bb[3] - bb[1]) * f, minW * 0.7); return [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2]; };
@@ -2462,7 +2487,7 @@ function locView(geo) {      // what to frame and outline for the selected locat
   const reg = geo.regions.filter(g => g.n === name);
   if (reg.length) return { vb: grow(union(reg), 1.3, 80), area: null, regions: reg };
   if (name === 'City of Toronto') { const reg3 = geo.regions.filter(g => g.n.startsWith('Toronto ')); return { vb: grow(union(reg3), 1.12, 80), area: null, regions: reg3 }; }
-  return { vb: [0, 0, geo.w, geo.h], area: null, regions: [] };      // TREB Overall
+  { const u = union(geo.areas), cx = (u[0] + u[2]) / 2, cy = (u[1] + u[3]) / 2, w = geo.w * 0.6, h = geo.h * 0.6; return { vb: [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], area: null, regions: [] }; }      // TREB Overall: one zoom step in from the whole frame
 }
 function lmMonth() { return S.lmM === null || S.lmM === undefined ? S.m : S.lmM; }
 function lmFull() { const card = $('cardLocMap'); return document.fullscreenElement === card || card.classList.contains('lmfs'); }
@@ -2503,26 +2528,27 @@ async function lmSearch(q) {
   if (li < 0) { const hits = LOCS.map((n, j) => [n, j]).filter(([n]) => n.toLowerCase().includes(low)); if (hits.length === 1) li = hits[0][1]; }
   if (li >= 0) { LM.pin = null; LM.focusComm = null; say(''); S.l = li; update(); return; }
   // 2) "lat, lng" typed directly, or 3) an address / postal code via OpenStreetMap
-  let lat, lon, label;
-  const ll = q.match(/^(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)$/);
-  if (ll) { lat = +ll[1]; lon = +ll[2]; label = q; }
-  else {
-    say('Looking up “' + q + '”…');
-    try {
-      const u = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=ca&viewbox=-80.3,44.6,-78.3,43.2&bounded=1&q=' + encodeURIComponent(q);
-      const res = await fetch(u, { headers: { 'Accept': 'application/json' } }); const js = await res.json();
-      const pc = /^[A-Za-z]\d[A-Za-z]\s*\d[A-Za-z]\d$/.test(q.trim());
-      if (!js.length) { say(pc ? 'OpenStreetMap doesn\u2019t have every Canadian postal code, and \u201c' + q + '\u201d isn\u2019t one of them. Please type the street address instead, e.g. \u201c123 Main St, Markham\u201d.' : 'No match found for \u201c' + q + '\u201d in the TRREB area. Try adding the city, e.g. \u201c123 Main St, Markham\u201d.', true); return; }
-      lat = +js[0].lat; lon = +js[0].lon; label = js[0].display_name.split(',').slice(0, 3).join(',');
-    } catch (e) { say('The address lookup isn’t reachable from this page (it needs an internet connection and works on the published site). You can still type an area name or a district code such as C09.', true); return; }
-  }
-  const [ux, uy] = geo.toUnits(lat, lon), a = areaAt(ux, uy), cm = commAt(ux, uy);
-  LM.pin = [ux, uy]; LM.pinLabel = label; LM.pinQuery = q; LM.focusComm = cm && a && cm.l === a.l ? cm : null; LM.pinComm = cm;
-  if (!a || a.l < 0) { say('\ud83d\udccd ' + label + ' is outside the TRREB areas on this map' + (cm ? ' (PropTx community: ' + cm.n + ', ' + cm.m + ')' : '') + '.', true); renderLocMap(); return; }
-  say('\ud83d\udccd ' + label + ' is in ' + (cm ? 'the <b>' + cm.n + '</b> community, ' : '') + '<b>' + a.n + '</b> (' + a.r + '). Use <b>Community map</b> for a report image.');
-  if (S.l !== a.l) { S.l = a.l; update(); } else renderLocMap();
+  if (!/^(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)$/.test(q)) say('Looking up \u201c' + q + '\u201d\u2026');
+  let g;
+  try { g = await geocode(q); } catch (e) { say('The address lookup isn\u2019t reachable from this page (it needs an internet connection and works on the published site). You can still type an area name or a district code such as C09.', true); return; }
+  if (!g) { const pc = /^[A-Za-z]\d[A-Za-z]\s*\d[A-Za-z]\d$/.test(q); say(pc ? 'OpenStreetMap doesn\u2019t have every Canadian postal code, and \u201c' + q + '\u201d isn\u2019t one of them. Please type the street address instead, e.g. \u201c123 Main St, Markham\u201d.' : 'No match found for \u201c' + q + '\u201d in the TRREB area. Try adding the city, e.g. \u201c123 Main St, Markham\u201d.', true); return; }
+  placeSubject(g.lat, g.lon, g.label, q);
 }
-function lmMsg() { const m = $('lmMsg'); m.innerHTML = LM.msg ? LM.msg + ' <button class="lnk" id="lmMsgX" title="Clear">×</button>' : ''; m.classList.toggle('err', !!LM.msgErr); const x = $('lmMsgX'); if (x) x.onclick = () => { LM.msg = ''; LM.pin = null; LM.pinComm = null; LM.focusComm = null; lmMsg(); renderLocMap(); }; }
+function placeSubject(lat, lon, label, q, comps) {
+  const geo = mapGeo(), say = (m, err) => { LM.msg = m; LM.msgErr = !!err; lmMsg(); };
+  const [ux, uy] = geo.toUnits(lat, lon), a = areaAt(ux, uy), cm = commAt(ux, uy);
+  LM.pin = [ux, uy]; LM.pinLL = [lat, lon]; LM.pinLabel = label; LM.pinQuery = q; LM.focusComm = cm && a && cm.l === a.l ? cm : null; LM.pinComm = cm;
+  // comparables: restored ones from a saved subject, otherwise re-measure any already placed from the new subject
+  if (comps) { LM.comps = comps.map(c => compRecord(c.q, c)); LM.compsText = comps.map(c => c.q).join('\n'); }
+  else LM.comps = LM.comps.map(c => c.bad ? c : compRecord(c.q, c));
+  recentSave(q, label, lat, lon, (comps || LM.comps.filter(c => !c.bad).map(c => ({ q: c.q, lat: c.lat, lon: c.lon, label: c.label }))));
+  compsRender();
+  if (!a || a.l < 0) { say('\ud83d\udccd ' + label + ' is outside the TRREB areas on this map' + (cm ? ' (PropTx community: ' + cm.n + ', ' + cm.m + ')' : '') + '.', true); renderLocMap(); return; }
+  say('\ud83d\udccd ' + label + ' is in ' + (cm ? 'the <b>' + cm.n + '</b> community, ' : '') + '<b>' + a.n + '</b> (' + a.r + '). Report images: <b>Community map</b>' + (LM.comps.length ? ', <b>Comparables map</b>' : '') + ', <b>Market snapshot</b>, <b>Area brief</b>.');
+  if (S.l !== a.l) { S.l = a.l; update(); } else renderLocMap();
+  if (comps && comps.length) { compsFit(); renderLocMap(); }
+}
+function lmMsg() { const m = $('lmMsg'); m.innerHTML = LM.msg ? LM.msg + ' <button class="lnk" id="lmMsgX" title="Clear">×</button>' : ''; m.classList.toggle('err', !!LM.msgErr); const x = $('lmMsgX'); if (x) x.onclick = () => { LM.msg = ''; LM.pin = null; LM.pinLL = null; LM.pinComm = null; LM.focusComm = null; lmMsg(); renderLocMap(); }; }
 function lmStop() { if (LM.play) { clearInterval(LM.play); LM.play = null; } const b = $('lmPlay'); if (b) { b.textContent = '▶'; b.title = 'Play through the months'; } }
 function bindLocMapOnce() {
   if (bindLocMapOnce.done || !$('cardLocMap')) return; bindLocMapOnce.done = true;
@@ -2533,7 +2559,14 @@ function bindLocMapOnce() {
   $('lmCmpBtn').onclick = () => { LM.cmpMode = !LM.cmpMode; renderLocMap(); };
   $('lmCmap').onclick = communityMapOpen;
   $('lmReset').onclick = lmReset;
-  $('lmStreets').onclick = () => { LM.streets = !LM.streets; renderLocMap(); };
+  $('lmBase').onchange = e => { LM.base = e.target.value; renderLocMap(); };
+  $('lmArrows').onclick = () => { LM.arrows = !LM.arrows; renderLocMap(); };
+  $('lmCompsBtn').onclick = () => { LM.compsOpen = !LM.compsOpen; compsRender(); };
+  $('lmCompsMap').onclick = () => imgOverlay('Comparables Map', compsMapImage(), 'Comparables Map - ' + (LM.pinQuery || 'comparables'));
+  $('lmSnap').onclick = () => imgOverlay('Market Snapshot', snapshotImage(), 'Market Snapshot - ' + LOCS[S.l] + ' - ' + typeName() + ' - ' + monthLabel(S.m), { pdf: true });
+  $('lmBrief').onclick = () => imgOverlay('Area Brief', briefImage(), 'Area Brief - ' + LOCS[S.l] + ' - ' + typeName() + ' - ' + monthLabel(S.m), { pdf: true });
+  $('lmRecentBtn').onclick = e => { e.stopPropagation(); const b = $('lmRecent'); b.hidden = !b.hidden; if (!b.hidden) recentRender(); };
+  document.addEventListener('click', e => { const b = $('lmRecent'); if (b && !b.hidden && !b.contains(e.target) && e.target !== $('lmRecentBtn')) b.hidden = true; });
   const t = $('lmT'); t.max = N - 1; t.oninput = () => { lmStop(); S.lmM = +t.value === S.m ? null : +t.value; renderLocMap(); };
   $('lmTnow').onclick = () => { lmStop(); S.lmM = null; renderLocMap(); };
   $('lmPlay').onclick = () => {
@@ -2567,7 +2600,9 @@ function renderLocMap() {
   $('lmCmpBtn').classList.toggle('on', LM.cmpMode || !!LM.cmp); $('lmCmpBtn').textContent = LM.cmpMode ? 'Click an area to compare…' : LM.cmp ? 'Comparing with ' + LM.cmp.n.replace('Toronto ', '') : 'Compare…';
   $('lmFs').textContent = lmFull() ? '✕ Exit full screen' : '⛶ Full screen';
   const cmb = $('lmCmap'); cmb.disabled = !(LM.pin && LM.pinComm); cmb.title = cmb.disabled ? 'Search an address first \u2013 the map then marks the subject and its PropTx community' : 'Make a report-ready community map of the searched address and copy it to the clipboard';
-  $('lmStreets').classList.toggle('on', LM.streets); $('lmStreets').title = LM.streets ? 'Hide the OpenStreetMap streets shown once you zoom in to community level' : 'Show OpenStreetMap streets once zoomed in to community level';
+  $('lmBase').value = LM.base; $('lmArrows').classList.toggle('on', LM.arrows);
+  const ncomp = LM.comps.filter(c => !c.bad).length, cmb2 = $('lmCompsMap'); cmb2.disabled = !ncomp; cmb2.title = ncomp ? 'Report image of the subject and ' + ncomp + ' comparable' + (ncomp > 1 ? 's' : '') + ', numbered, with distances' : 'Place comparables first (Comparables\u2026)';
+  $('lmCompsBtn').textContent = ncomp ? 'Comparables (' + ncomp + ')' : 'Comparables\u2026'; $('lmCompsBtn').classList.toggle('on', LM.compsOpen || ncomp > 0);
   // key figures for the selected location (and the compared one), with rank among the 65 mapped areas
   const rank = (mk, x, area) => { if (!area || x === null || MK[mk].cats) return ''; const d = mapData(mk, i, false), p = d.ranked.findIndex(r => r.a === area); return p >= 0 ? '<span class="rkn">' + (p + 1) + ' of ' + d.ranked.length + '</span>' : ''; };
   const FIGS = ['median', 'avg', 'rel', 'yoy', 'y5', 'sales', 'snlr', 'inv', 'dom'].concat(R ? ['rent'] : []);
@@ -2622,10 +2657,10 @@ function renderLocMap() {
   }
   $('lmSide').querySelectorAll('.mpr').forEach(e => e.onclick = ev => { const li = +e.dataset.l; if (ev.shiftKey || LM.cmpMode) { const a = geo.areas.find(x => x.l === li); if (a) { LM.cmp = a; LM.cmpMode = false; renderLocMap(); return; } } S.l = li; update(); });
   const cx = $('lmCmpX'); if (cx) cx.onclick = () => { LM.cmp = null; renderLocMap(); };
-  $('lmLeg').innerHTML = mapLegend(md);
+  $('lmLeg').innerHTML = mapLegend(md) + (LM.arrows ? ARROW_LEGEND : '');
   const full = lmFull(), lmH = full ? Math.max(360, window.innerHeight - 250) : S.lx ? Math.max(700, Math.min(1000, window.innerHeight - 120)) : 500, kz = lmH / 440;   // bigger map = same zoom, more surroundings
   const lvb = kz === 1 ? view.vb : (() => { const [a, b2, c2, d] = view.vb, cx2 = (a + c2) / 2, cy = (b2 + d) / 2, w = (c2 - a) * kz / 2, h = (d - b2) * kz / 2; return [cx2 - w, cy - h, cx2 + w, cy + h]; })();
-  const st = MAPS.loc = Object.assign(MAPS.loc || {}, { box: $('lmMap'), md, mode: 'focus', fixedH: lmH, vb: lvb, tiles: true, focusComm: LM.focusComm, selArea: view.area, selRegions: view.regions, cmpArea: cmp, match, pin: LM.pin, cmpMode: LM.cmpMode,
+  const st = MAPS.loc = Object.assign(MAPS.loc || {}, { box: $('lmMap'), md, mode: 'focus', fixedH: lmH, vb: lvb, tiles: true, focusComm: LM.focusComm, comps: LM.comps, arrows: LM.arrows, selArea: view.area, selRegions: view.regions, cmpArea: cmp, match, pin: LM.pin, cmpMode: LM.cmpMode,
     onCompare: a => { if (a.l === S.l) return; LM.cmp = a; LM.cmpMode = false; renderLocMap(); } });
   paintMap(st, true);
   $('lmNote').innerHTML = (k.cats ? 'Market balance follows TRREB’s usual reading of the sales-to-new-listings ratio: under 40% a buyer’s market, 40–60% balanced, over 60% a seller’s market. ' : k.br ? 'Colours use fixed bands' + (k.div ? ' (red below, blue above)' : '') + ', so they compare directly from month to month. ' : 'Colours use one fixed scale for this measure – seven equal-count groups over every month since ' + monthLabel(0) + ' – so they compare directly as you move the time slider. ') +
@@ -2650,7 +2685,7 @@ async function communityMapBlob() {
   // street tiles
   const z = Math.max(10, Math.min(18, Math.floor(Math.log2(sc * 360 * geo.K / 256)))), [gx0, gy0] = geo.gpx(vb[0], vb[1], z), [gx1] = geo.gpx(vb[2], vb[3], z), f = W / (gx1 - gx0), [, gy1] = geo.gpx(vb[2], vb[3], z);
   const need = []; for (let x = Math.floor(gx0 / 256); x <= Math.floor(gx1 / 256); x++) for (let y = Math.floor(gy0 / 256); y <= Math.floor(gy1 / 256); y++) need.push([x, y]);
-  const tiles = await Promise.all(need.map(([x, y]) => new Promise(res => { const t = osmTile(z, x, y, () => res([x, y, t])); if (t.ok || t.bad) res([x, y, t]); setTimeout(() => res([x, y, t]), 9000); })));
+  const tiles = await Promise.all(need.map(([x, y]) => new Promise(res => { const t = baseTile(LM.base === 'satellite' ? 'satellite' : 'streets', z, x, y, () => res([x, y, t])); if (t.ok || t.bad) res([x, y, t]); setTimeout(() => res([x, y, t]), 9000); })));
   c.fillStyle = '#f4f2ec'; c.fillRect(0, 0, W, H);
   c.save(); c.beginPath(); c.rect(0, HEAD, W, MH); c.clip();
   let streets = 0; for (const [x, y, t] of tiles) if (t.ok) { c.drawImage(t.img, (x * 256 - gx0) * f, HEAD + (y * 256 - gy0) * f, 256 * f + 0.6, 256 * f + 0.6); streets++; }
@@ -2698,35 +2733,323 @@ async function communityMapBlob() {
   c.fillStyle = '#ffffff'; c.font = font(17, '700'); c.fillText('Home Value Inc.', W - 30, 72);
   c.fillStyle = '#ffffff'; c.fillRect(0, HEAD + MH, W, FOOT); c.fillStyle = '#4b5853'; c.font = font(14.5, '500'); c.textAlign = 'left';
   c.fillText('Red outline: subject community. Purple lines: neighbouring communities. Dashed: TRREB district / municipal boundary.', 24, HEAD + MH + 26);
-  c.fillText('Community boundaries: PropTx community map (as published August 2025). ' + (streets ? 'Base map © OpenStreetMap contributors.' : 'Street base map unavailable – shoreline © Statistics Canada.'), 24, HEAD + MH + 49);
+  c.fillText('Community boundaries: PropTx community map (as published August 2025). ' + (streets ? 'Base map ' + BASE_CREDIT[LM.base === 'satellite' ? 'satellite' : 'streets'] + '.' : 'Street base map unavailable – shoreline © Statistics Canada.'), 24, HEAD + MH + 49);
   return await new Promise(res => cv.toBlob(res, 'image/png'));
 }
 function communityMapOpen() {
   if (!LM.pin || !LM.pinComm) return;
-  const blobP = communityMapBlob();
-  let copied = null;
-  try { if (navigator.clipboard && window.ClipboardItem) copied = navigator.clipboard.write([new ClipboardItem({ 'image/png': blobP })]).then(() => true, () => false); } catch (e) { copied = null; }
-  let ov = $('cmapOv'); if (!ov) { ov = document.createElement('div'); ov.id = 'cmapOv'; document.body.appendChild(ov); }
-  ov.innerHTML = '<div class="cmbox"><div class="cmhd"><b>Community Map</b><span id="cmStat">Preparing the image…</span><button class="lnk" id="cmX" title="Close">×</button></div><div class="cmimg" id="cmImg"></div><div class="cmft"><button class="btn small" id="cmCopy" disabled>Copy image</button><button class="btn sec small" id="cmDl" disabled>Download PNG</button><span class="cmhint">Paste straight into your report (Ctrl + V).</span></div></div>';
-  ov.style.display = 'flex'; $('cmX').onclick = () => { ov.style.display = 'none'; }; ov.onclick = e => { if (e.target === ov) ov.style.display = 'none'; };
-  blobP.then(async blob => {
-    const url = URL.createObjectURL(blob); $('cmImg').innerHTML = '<img src="' + url + '" alt="Community map">';
-    const name = ('Community Map - ' + (LM.pinQuery || LM.pinComm.n)).replace(/[\\/:*?"<>|]/g, '-') + '.png';
-    $('cmDl').disabled = false; $('cmDl').onclick = () => { const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); };
-    $('cmCopy').disabled = false; $('cmCopy').onclick = async () => { try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); $('cmStat').textContent = 'Copied – paste it into your report.'; } catch (e) { $('cmStat').textContent = 'This browser blocked copying here – use Download PNG.'; } };
-    const ok = copied ? await copied : false;
-    $('cmStat').textContent = ok ? 'Copied to the clipboard – paste it into your report.' : 'Ready – use Copy image or Download PNG.';
-  }).catch(e => { $('cmStat').textContent = 'Could not build the image (' + e + ').'; });
+  imgOverlay('Community Map', communityMapBlob().then(blob => ({ blob, canvas: null })), 'Community Map - ' + (LM.pinQuery || LM.pinComm.n));
 }
 function lmReset() {
   lmStop(); const card = $('cardLocMap');
   if (document.fullscreenElement) document.exitFullscreen(); card.classList.remove('lmfs'); document.body.classList.remove('lmfs-on');
-  Object.assign(LM, { cmp: null, cmpMode: false, pin: null, pinLabel: '', pinQuery: '', pinComm: null, focusComm: null, filters: [], findOpen: false, msg: '', streets: true });
+  Object.assign(LM, { cmp: null, cmpMode: false, pin: null, pinLabel: '', pinQuery: '', pinComm: null, focusComm: null, filters: [], findOpen: false, msg: '', base: 'streets', arrows: true, comps: [], compsOpen: false, compsText: '', pinLL: null });
+  $('lmRecent').hidden = true; compsRender();
   // the opening map: TREB Overall (whole GTA), All Home Types, the latest month, median-price shading, nothing searched or filtered
   S.lm = S_DEFAULT.lm; S.lmM = null; S.lx = false; $('lmQ').value = '';
   S.l = S_DEFAULT.l; S.t = S_DEFAULT.t; S.m = S_DEFAULT.m; LM.lastM = S.m;
   if (MAPS.loc) { MAPS.loc.user = null; MAPS.loc.tkey = null; MAPS.loc.hover = null; }
   renderFind(); update();
+}
+
+/* --- base maps, shared by the Location card and the report images --- */
+function baseTile(kind, z, x, y, onload) {
+  const key = kind + '/' + z + '/' + x + '/' + y; let t = TILES.get(key);
+  if (!t) { t = { img: new Image(), ok: false, bad: false, wait: [] }; t.img.crossOrigin = 'anonymous'; t.img.referrerPolicy = 'strict-origin-when-cross-origin';
+    t.img.onload = () => { t.ok = true; t.wait.splice(0).forEach(f => f()); }; t.img.onerror = () => { t.bad = true; t.wait.splice(0).forEach(f => f()); };
+    t.img.src = kind === 'satellite' ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/' + z + '/' + y + '/' + x : 'https://tile.openstreetmap.org/' + z + '/' + x + '/' + y + '.png';
+    TILES.set(key, t); }
+  if (!t.ok && !t.bad && onload) t.wait.push(onload);
+  return t;
+}
+const BASE_CREDIT = { streets: '© OpenStreetMap contributors', satellite: 'Imagery © Esri, Maxar, Earthstar Geographics' };
+// draw base tiles for a report image (waits up to 9 s for them); returns how many arrived plus the numbers the scale bar needs
+async function reportTiles(c, kind, geo, vb, W, top, MH) {
+  const sc = W / (vb[2] - vb[0]), z = Math.max(10, Math.min(18, Math.floor(Math.log2(sc * 360 * geo.K / 256)))), [gx0, gy0] = geo.gpx(vb[0], vb[1], z), [gx1, gy1] = geo.gpx(vb[2], vb[3], z), f = W / (gx1 - gx0);
+  let n = 0;
+  if (kind !== 'none') {
+    const need = []; for (let x = Math.floor(gx0 / 256); x <= Math.floor(gx1 / 256); x++) for (let y = Math.floor(gy0 / 256); y <= Math.floor(gy1 / 256); y++) need.push([x, y]);
+    const tiles = await Promise.all(need.map(([x, y]) => new Promise(res => { const t = baseTile(kind, z, x, y, () => res([x, y, t])); if (t.ok || t.bad) res([x, y, t]); setTimeout(() => res([x, y, t]), 9000); })));
+    for (const [x, y, t] of tiles) if (t.ok) { c.drawImage(t.img, (x * 256 - gx0) * f, top + (y * 256 - gy0) * f, 256 * f + 0.6, 256 * f + 0.6); n++; }
+  }
+  if (!n) { const tx = x => (x - vb[0]) * sc, ty = y => top + (y - vb[1]) * sc; c.fillStyle = '#d9e6ef'; c.fillRect(0, top, W, MH); c.fillStyle = '#f1efe9';
+    for (const rr of geo.ctx.concat(geo.areas.map(x => x.rings), geo.comm.map(x => x.rings))) { const p = new Path2D(); for (const r of rr) { p.moveTo(tx(r[0]), ty(r[1])); for (let j = 2; j < r.length; j += 2) p.lineTo(tx(r[j]), ty(r[j + 1])); p.closePath(); } c.fill(p, 'evenodd'); } }
+  const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * ((gy0 + gy1) / 2) / (256 * Math.pow(2, z))))) * 180 / Math.PI;
+  return { n, mpp: 156543.03392 * Math.cos(lat * Math.PI / 180) / Math.pow(2, z) / f };
+}
+const RFONT = (sz, wt) => wt + ' ' + sz + 'px system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif';
+function reportHeader(c, W, HEAD, title, line1, line2) {
+  c.fillStyle = '#123d2f'; c.fillRect(0, 0, W, HEAD); c.fillStyle = '#c9a646'; c.fillRect(0, HEAD - 5, W, 5);
+  c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.fillStyle = '#e8c26a'; c.font = RFONT(38, '800'); c.fillText(title, 34, 52);
+  c.fillStyle = '#ffffff'; c.font = RFONT(23, '600'); c.fillText(line1.slice(0, 95), 34, 88);
+  c.font = RFONT(19, '500'); c.fillStyle = '#d7e4dc'; c.fillText(line2.slice(0, 130), 34, 115);
+  c.textAlign = 'right'; c.font = RFONT(16, '600'); c.fillStyle = '#d7e4dc'; c.fillText(new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' }), W - 30, 46);
+  c.fillStyle = '#ffffff'; c.font = RFONT(17, '700'); c.fillText('Home Value Inc.', W - 30, 72); c.textAlign = 'left';
+}
+function reportScaleNorth(c, W, top, MH, mpp) {
+  c.fillStyle = 'rgba(255,255,255,.92)'; c.fillRect(W - 78, top + 16, 58, 76); c.fillStyle = '#1b2320'; c.beginPath(); c.moveTo(W - 49, top + 26); c.lineTo(W - 62, top + 62); c.lineTo(W - 49, top + 54); c.lineTo(W - 36, top + 62); c.closePath(); c.fill(); c.font = RFONT(18, '800'); c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.fillText('N', W - 49, top + 80);
+  const nice = [50, 100, 200, 250, 500, 1000, 2000, 5000, 10000].find(m => m / mpp > 140) || 10000, bw = nice / mpp;
+  c.fillStyle = 'rgba(255,255,255,.92)'; c.fillRect(18, top + MH - 58, bw + 36, 42); c.fillStyle = '#1b2320'; c.fillRect(36, top + MH - 30, bw, 6); c.fillStyle = '#fff'; c.fillRect(36 + bw / 2, top + MH - 29, bw / 2 - 1, 4);
+  c.fillStyle = '#1b2320'; c.font = RFONT(15, '700'); c.fillText(nice >= 1000 ? nice / 1000 + ' km' : nice + ' m', 36 + bw / 2, top + MH - 44); c.textAlign = 'left';
+}
+function drawSubjectPin(c, px, py, W, top) {
+  c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 8; c.shadowOffsetY = 3;
+  c.fillStyle = '#c62828'; c.strokeStyle = '#fff'; c.lineWidth = 4; c.beginPath(); c.moveTo(px, py); c.bezierCurveTo(px - 26, py - 32, px - 22, py - 62, px, py - 62); c.bezierCurveTo(px + 22, py - 62, px + 26, py - 32, px, py); c.closePath(); c.fill(); c.stroke(); c.restore();
+  c.fillStyle = '#fff'; c.beginPath(); c.arc(px, py - 41, 8.5, 0, 7); c.fill();
+  c.font = RFONT(19, '800'); const sw = c.measureText('SUBJECT').width + 18; const sx = Math.min(W - sw - 8, Math.max(8, px + 22)), sy = Math.max(top + 8, py - 66);
+  c.fillStyle = '#c62828'; c.fillRect(sx, sy, sw, 30); c.fillStyle = '#fff'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText('SUBJECT', sx + 9, sy + 15.5);
+}
+function wrapText(c, text, x, y, maxW, lh, maxLines) {
+  const words = String(text).split(/\s+/); let line = '', n = 0;
+  for (const w of words) { const t = line ? line + ' ' + w : w; if (c.measureText(t).width > maxW && line) { c.fillText(line, x, y + n * lh); n++; line = w; if (maxLines && n >= maxLines) return n; } else line = t; }
+  if (line) { c.fillText(line, x, y + n * lh); n++; }
+  return n;
+}
+const kmBetween = (a, b) => { const R = 6371, dLa = (b[0] - a[0]) * Math.PI / 180, dLo = (b[1] - a[1]) * Math.PI / 180, s = Math.sin(dLa / 2) ** 2 + Math.cos(a[0] * Math.PI / 180) * Math.cos(b[0] * Math.PI / 180) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(s)); };
+const fmtKm = d => d === null || d === undefined ? '' : d < 1 ? Math.round(d * 1000 / 10) * 10 + ' m' : d.toFixed(d < 10 ? 2 : 1) + ' km';
+
+/* --- trend arrows: 3-month average median now vs. a year earlier --- */
+function medTrend(t, l, i) {
+  const avg = (a, b) => { let s = 0, n = 0; for (let k = a; k <= b; k++) { const x = medAt(t, l, k); if (x !== null) { s += x; n++; } } return n >= 2 ? s / n : null; };
+  if (i < 14) return null; const now = avg(i - 2, i), then = avg(i - 14, i - 12); return now !== null && then ? now / then - 1 : null;
+}
+function drawTrendArrow(c, x, y, tr, size) {
+  if (tr === null || tr === undefined) return;
+  const up = tr > 0.02, dn = tr < -0.02, col = up ? '#1f7a4d' : dn ? '#b3261e' : '#77837e', s = size;
+  c.save(); c.fillStyle = col; c.strokeStyle = 'rgba(255,255,255,.95)'; c.lineWidth = 2.5; c.lineJoin = 'round'; c.beginPath();
+  if (up) { c.moveTo(x, y - s * 0.6); c.lineTo(x + s * 0.55, y + s * 0.4); c.lineTo(x - s * 0.55, y + s * 0.4); }
+  else if (dn) { c.moveTo(x, y + s * 0.6); c.lineTo(x + s * 0.55, y - s * 0.4); c.lineTo(x - s * 0.55, y - s * 0.4); }
+  else { c.rect(x - s * 0.5, y - s * 0.16, s, s * 0.32); }
+  c.closePath(); c.stroke(); c.fill(); c.restore();
+}
+const ARROW_LEGEND = '<span class="mpl"><i class="arr up"></i><i class="arr dn"></i>Median trend (3-month average vs. a year earlier; ▲ up over 2%, ▼ down over 2%, ▬ within 2%)</span>';
+
+/* --- saved subjects: the last ten searched addresses, kept in this browser only --- */
+const RECENT_KEY = 'hvi.recentSubjects';
+function recentGet() { try { const a = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+function recentPut(list) { try { localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 10))); } catch (e) { } }
+function recentSave(q, label, lat, lon, comps) {
+  const list = recentGet().filter(r => r.q.toLowerCase() !== q.toLowerCase());
+  list.unshift({ q, label, lat, lon, comps: comps || [], t: Date.now() }); recentPut(list);
+}
+function recentRender() {
+  const box = $('lmRecent'), list = recentGet();
+  box.innerHTML = list.length ? '<div class="rhd">Recent subjects <small>(this browser only)</small></div>' + list.map((r, j) => '<button class="ritem" data-j="' + j + '"><b>' + r.q.replace(/</g, '&lt;') + '</b><small>' + (r.comps && r.comps.length ? r.comps.length + ' comparable' + (r.comps.length > 1 ? 's' : '') + ' · ' : '') + new Date(r.t).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }) + '</small></button>').join('') + '<button class="lnk2" id="rClear">Clear the list</button>' : '<div class="rhd">No saved subjects yet – search an address and it is remembered here.</div>';
+  box.querySelectorAll('.ritem').forEach(b => b.onclick = () => { const r = recentGet()[+b.dataset.j]; box.hidden = true; if (!r) return; $('lmQ').value = r.q; placeSubject(r.lat, r.lon, r.label, r.q, r.comps); });
+  const cl = $('rClear'); if (cl) cl.onclick = () => { recentPut([]); recentRender(); };
+}
+
+/* --- geocoding (OpenStreetMap Nominatim): one request at a time, at most one a second --- */
+let geoLast = 0;
+async function geocode(q) {
+  const ll = q.match(/^(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)$/);
+  if (ll) return { lat: +ll[1], lon: +ll[2], label: q };
+  const wait = geoLast + 1100 - Date.now(); if (wait > 0) await new Promise(r => setTimeout(r, wait)); geoLast = Date.now();
+  const u = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=ca&viewbox=-80.3,44.6,-78.3,43.2&bounded=1&q=' + encodeURIComponent(q);
+  const js = await (await fetch(u, { headers: { 'Accept': 'application/json' } })).json();
+  return js.length ? { lat: +js[0].lat, lon: +js[0].lon, label: js[0].display_name.split(',').slice(0, 3).join(',') } : null;
+}
+
+/* --- comparables on the map --- */
+function compsRender() {
+  const box = $('lmComps'); box.hidden = !LM.compsOpen; $('lmCompsBtn').classList.toggle('on', LM.compsOpen || LM.comps.length > 0);
+  if (!LM.compsOpen) return;
+  const rows = LM.comps.map((c, j) => '<tr><td><span class="cnum">' + (j + 1) + '</span></td><td>' + c.q.replace(/</g, '&lt;') + (c.bad ? ' <span class="cbad">' + c.bad + '</span>' : '') + '</td><td>' + (c.comm ? c.comm.n + ', ' : '') + (c.area || '') + '</td><td><b>' + fmtKm(c.km) + '</b></td></tr>').join('');
+  box.innerHTML = '<div class="fhd">Comparables – one address per line (up to 12). They are numbered in this order.</div>' +
+    '<textarea id="cmpIn" rows="4" placeholder="123 Main St, Markham&#10;45 King St W, Toronto&#10;43.6532, -79.3832">' + (LM.compsText || '').replace(/</g, '&lt;') + '</textarea>' +
+    '<div class="fft"><button class="btn small" id="cmpGo">Place on map</button><button class="btn sec small" id="cmpClr">Clear</button><span id="cmpStat">' + (LM.pin ? '' : 'Tip: search the subject first so distances can be measured from it.') + '</span></div>' +
+    (LM.comps.length ? '<table class="ctab"><thead><tr><th>#</th><th>Address</th><th>Community / area</th><th>From subject</th></tr></thead><tbody>' + rows + '</tbody></table>' : '');
+  $('cmpGo').onclick = compsPlace; $('cmpClr').onclick = () => { LM.comps = []; LM.compsText = ''; compsSaveToRecent(); compsRender(); renderLocMap(); };
+}
+async function compsPlace() {
+  const geo = mapGeo(), lines = $('cmpIn').value.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 12); LM.compsText = $('cmpIn').value;
+  if (!lines.length) return;
+  const stat = $('cmpStat'), out = [];
+  for (let j = 0; j < lines.length; j++) {
+    stat.textContent = 'Looking up ' + (j + 1) + ' of ' + lines.length + '…';
+    let g = null; try { g = await geocode(lines[j]); } catch (e) { stat.textContent = 'The address lookup isn’t reachable from this page (it works on the published site).'; return; }
+    out.push(compRecord(lines[j], g));
+  }
+  LM.comps = out; compsSaveToRecent(); compsRender(); compsFit(); renderLocMap();
+  const bad = out.filter(c => c.bad).length; $('cmpStat').textContent = (out.length - bad) + ' placed' + (bad ? ', ' + bad + ' not found – add the city or check the spelling' : '') + '. Use Comparables map for a report image.';
+}
+function compRecord(q, g) {
+  if (!g) return { q, bad: 'not found' };
+  const geo = mapGeo(), [ux, uy] = geo.toUnits(g.lat, g.lon), a = areaAt(ux, uy), cm = commAt(ux, uy);
+  return { q, label: g.label, lat: g.lat, lon: g.lon, ux, uy, area: a ? a.n : '', comm: cm, km: LM.pinLL ? kmBetween(LM.pinLL, [g.lat, g.lon]) : null };
+}
+function compsSaveToRecent() {
+  if (!LM.pinQuery) return; const list = recentGet(), r = list.find(x => x.q.toLowerCase() === LM.pinQuery.toLowerCase());
+  if (r) { r.comps = LM.comps.filter(c => !c.bad).map(c => ({ q: c.q, lat: c.lat, lon: c.lon, label: c.label })); recentPut(list); }
+}
+function compsFit() {            // zoom the Location map to show the subject and every comparable
+  const pts = LM.comps.filter(c => !c.bad).map(c => [c.ux, c.uy]); if (LM.pin) pts.push(LM.pin); if (!pts.length || !MAPS.loc) return;
+  let x0 = Math.min(...pts.map(p => p[0])), x1 = Math.max(...pts.map(p => p[0])), y0 = Math.min(...pts.map(p => p[1])), y1 = Math.max(...pts.map(p => p[1]));
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, w = Math.max((x1 - x0) * 1.3, 8), h = Math.max((y1 - y0) * 1.3, 5);
+  MAPS.loc.user = [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2];
+}
+function drawComps(c, st, tx, ty, W, H) {
+  const list = st.comps || []; if (!list.length) return;
+  list.forEach((cp, j) => { if (cp.bad) return; const x = tx(cp.ux), y = ty(cp.uy); if (x < -20 || x > W + 20 || y < -20 || y > H + 20) return;
+    c.save(); c.shadowColor = 'rgba(0,0,0,.3)'; c.shadowBlur = 4; c.fillStyle = '#1f4e8c'; c.strokeStyle = '#fff'; c.lineWidth = 2.5; c.beginPath(); c.arc(x, y, 11, 0, 7); c.fill(); c.stroke(); c.restore();
+    c.fillStyle = '#fff'; c.font = '700 12px system-ui,sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(j + 1), x, y + 0.5);
+    if (cp.km !== null && cp.km !== undefined) { const t = fmtKm(cp.km); c.font = '600 10.5px system-ui,sans-serif'; const tw = c.measureText(t).width + 8; c.fillStyle = 'rgba(255,255,255,.92)'; c.fillRect(x + 13, y - 8, tw, 16); c.fillStyle = '#1f4e8c'; c.textAlign = 'left'; c.fillText(t, x + 17, y + 0.5); }
+  });
+}
+
+/* --- shared preview window for every report image --- */
+function imgOverlay(title, resP, name, opts) {
+  opts = opts || {};
+  const blobP = resP.then(r => r.blob);
+  let copied = null;
+  try { if (navigator.clipboard && window.ClipboardItem) copied = navigator.clipboard.write([new ClipboardItem({ 'image/png': blobP })]).then(() => true, () => false); } catch (e) { copied = null; }
+  let ov = $('cmapOv'); if (!ov) { ov = document.createElement('div'); ov.id = 'cmapOv'; document.body.appendChild(ov); }
+  ov.innerHTML = '<div class="cmbox"><div class="cmhd"><b>' + title + '</b><span id="cmStat">Preparing the image…</span><button class="lnk" id="cmX" title="Close">×</button></div><div class="cmimg" id="cmImg"></div><div class="cmft"><button class="btn small" id="cmCopy" disabled>Copy image</button><button class="btn sec small" id="cmDl" disabled>Download PNG</button>' + (opts.pdf ? '<button class="btn sec small" id="cmPdf" disabled>Download PDF</button>' : '') + '<span class="cmhint">Paste straight into your report (Ctrl + V).</span></div></div>';
+  ov.style.display = 'flex'; $('cmX').onclick = () => { ov.style.display = 'none'; }; ov.onclick = e => { if (e.target === ov) ov.style.display = 'none'; };
+  const fname = name.replace(/[\\/:*?"<>|]/g, '-');
+  resP.then(async ({ blob, canvas }) => {
+    const url = URL.createObjectURL(blob); $('cmImg').innerHTML = '<img src="' + url + '" alt="' + title + '">';
+    $('cmDl').disabled = false; $('cmDl').onclick = () => { const a = document.createElement('a'); a.href = url; a.download = fname + '.png'; document.body.appendChild(a); a.click(); a.remove(); };
+    $('cmCopy').disabled = false; $('cmCopy').onclick = async () => { try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); $('cmStat').textContent = 'Copied – paste it into your report.'; } catch (e) { $('cmStat').textContent = 'This browser blocked copying here – use Download PNG.'; } };
+    if (opts.pdf && $('cmPdf')) { $('cmPdf').disabled = false; $('cmPdf').onclick = async () => { const pb = await canvasesToPdf([canvas]); const a = document.createElement('a'); a.href = URL.createObjectURL(pb); a.download = fname + '.pdf'; document.body.appendChild(a); a.click(); a.remove(); }; }
+    const ok = copied ? await copied : false;
+    $('cmStat').textContent = ok ? 'Copied to the clipboard – paste it into your report.' : 'Ready – use Copy image' + (opts.pdf ? ', Download PNG or Download PDF.' : ' or Download PNG.');
+  }).catch(e => { $('cmStat').textContent = 'Could not build the image (' + e + ').'; });
+}
+const toBlobRes = cv => new Promise(res => cv.toBlob(b => res({ blob: b, canvas: cv }), 'image/png'));
+
+/* --- Comparables map: subject + numbered comparables with distances, and a key underneath --- */
+async function compsMapImage() {
+  const geo = mapGeo(), comps = LM.comps.filter(c => !c.bad), pin = LM.pin;
+  const W = 1600, HEAD = 128, MH = 1000, RH = 34, TAB = 56 + comps.length * RH, FOOT = 56, H = HEAD + MH + TAB + FOOT;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+  const pts = comps.map(p => [p.ux, p.uy]); if (pin) pts.push(pin);
+  let x0 = Math.min(...pts.map(p => p[0])), x1 = Math.max(...pts.map(p => p[0])), y0 = Math.min(...pts.map(p => p[1])), y1 = Math.max(...pts.map(p => p[1]));
+  let cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, w = Math.max((x1 - x0) * 1.22, 7), h = Math.max((y1 - y0) * 1.3, 7 * MH / W); if (w / h < W / MH) w = h * W / MH; else h = w * MH / W;
+  const vb = [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], sc = W / w, tx = x => (x - vb[0]) * sc, ty = y => HEAD + (y - vb[1]) * sc;
+  c.fillStyle = '#ffffff'; c.fillRect(0, 0, W, H);
+  c.save(); c.beginPath(); c.rect(0, HEAD, W, MH); c.clip();
+  const tl = await reportTiles(c, LM.base === 'none' ? 'none' : LM.base, geo, vb, W, HEAD, MH);
+  const pathOf = rs => { const p = new Path2D(); for (const r of rs) { p.moveTo(tx(r[0]), ty(r[1])); for (let j = 2; j < r.length; j += 2) p.lineTo(tx(r[j]), ty(r[j + 1])); p.closePath(); } return p; };
+  const inV = bb => !(bb[2] < vb[0] || bb[0] > vb[2] || bb[3] < vb[1] || bb[1] > vb[3]);
+  c.lineJoin = 'round'; const sat = LM.base === 'satellite';
+  for (const a of geo.areas) if (inV(a.bb)) { c.save(); c.setLineDash([14, 7]); c.strokeStyle = sat ? '#ffe08a' : '#1b2a4a'; c.lineWidth = 3; c.stroke(pathOf(a.rings)); c.restore(); }
+  if (LM.pinComm) { const sp = pathOf(LM.pinComm.rings); c.strokeStyle = '#ffffff'; c.lineWidth = 8; c.stroke(sp); c.strokeStyle = '#c62828'; c.lineWidth = 4; c.stroke(sp); }
+  comps.forEach((p, j) => { const x = tx(p.ux), y = ty(p.uy);
+    c.save(); c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 8; c.fillStyle = '#1f4e8c'; c.strokeStyle = '#fff'; c.lineWidth = 4; c.beginPath(); c.arc(x, y, 22, 0, 7); c.fill(); c.stroke(); c.restore();
+    c.fillStyle = '#fff'; c.font = RFONT(22, '800'); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(j + 1), x, y + 1);
+    if (p.km !== null && p.km !== undefined) { const t = fmtKm(p.km); c.font = RFONT(18, '700'); const tw = c.measureText(t).width + 16; const bx = Math.min(W - tw - 6, x + 26); c.fillStyle = 'rgba(255,255,255,.95)'; c.fillRect(bx, y - 15, tw, 30); c.strokeStyle = '#1f4e8c'; c.lineWidth = 1.5; c.strokeRect(bx, y - 15, tw, 30); c.fillStyle = '#1f4e8c'; c.textAlign = 'left'; c.fillText(t, bx + 8, y + 1); }
+  });
+  if (pin) drawSubjectPin(c, tx(pin[0]), ty(pin[1]), W, HEAD);
+  reportScaleNorth(c, W, HEAD, MH, tl.mpp);
+  c.restore();
+  const a = pin ? areaAt(pin[0], pin[1]) : null;
+  reportHeader(c, W, HEAD, 'Comparables Map', pin ? 'Subject: ' + (LM.pinQuery || LM.pinLabel) : 'Comparables', pin ? (LM.pinComm ? 'Community: ' + LM.pinComm.n + '  ·  ' : '') + (a ? a.n + '  ·  ' + a.r : '') + '  ·  ' + comps.length + ' comparable' + (comps.length === 1 ? '' : 's') : comps.length + ' comparables');
+  // key
+  let y = HEAD + MH + 14; c.fillStyle = '#f4f2ec'; c.fillRect(0, HEAD + MH, W, TAB);
+  c.font = RFONT(16, '700'); c.fillStyle = '#5d6b66'; c.textBaseline = 'middle'; const col = [30, 100, 900, 1380];
+  ['#', 'Address', 'Community / area', 'From subject'].forEach((t, k) => c.fillText(t.toUpperCase(), col[k], y + 14)); y += 36;
+  comps.forEach((p, j) => { if (j % 2 === 0) { c.fillStyle = '#ece9df'; c.fillRect(16, y - 2, W - 32, RH); }
+    c.fillStyle = '#1f4e8c'; c.beginPath(); c.arc(col[0] + 12, y + RH / 2 - 2, 13, 0, 7); c.fill(); c.fillStyle = '#fff'; c.font = RFONT(15, '800'); c.textAlign = 'center'; c.fillText(String(j + 1), col[0] + 12, y + RH / 2 - 1); c.textAlign = 'left';
+    c.fillStyle = '#1b2320'; c.font = RFONT(18, '600'); c.fillText(p.q.slice(0, 70), col[1], y + RH / 2 - 1);
+    c.font = RFONT(17, '500'); c.fillText(((p.comm ? p.comm.n + ', ' : '') + (p.area || '')).slice(0, 44), col[2], y + RH / 2 - 1);
+    c.font = RFONT(18, '700'); c.fillText(p.km === null || p.km === undefined ? '–' : fmtKm(p.km), col[3], y + RH / 2 - 1); y += RH; });
+  c.fillStyle = '#4b5853'; c.font = RFONT(14.5, '500'); c.textBaseline = 'alphabetic';
+  c.fillText('Distances are straight-line from the subject. Red outline: subject community; dashed: TRREB district / municipal boundary. Community boundaries: PropTx (August 2025 release).', 24, H - 30);
+  c.fillText((tl.n ? 'Base map ' + BASE_CREDIT[LM.base === 'satellite' ? 'satellite' : 'streets'] + '. ' : '') + 'Locations geocoded with OpenStreetMap (Nominatim).', 24, H - 10);
+  return toBlobRes(cv);
+}
+
+/* --- small canvas chart used by the Market Snapshot and Area Brief --- */
+function drawMiniChart(c, x, y, w, h, opt) {
+  const { from, to, lines, bars, fmtY, title } = opt;
+  c.fillStyle = '#1b2320'; c.font = RFONT(19, '700'); c.textBaseline = 'alphabetic'; c.textAlign = 'left'; c.fillText(title, x, y - 12);
+  const L = 74, R = 16, T = 8, B = 30, pw = w - L - R, ph = h - T - B;
+  const vals = []; (lines || []).forEach(s => { for (let k = from; k <= to; k++) if (s.data[k] !== null && s.data[k] !== undefined) vals.push(s.data[k]); }); (bars || []).forEach(s => { for (let k = from; k <= to; k++) if (s.data[k] !== null && s.data[k] !== undefined) vals.push(s.data[k]); });
+  if (!vals.length) return;
+  let lo = bars ? 0 : Math.min(...vals), hi = Math.max(...vals); const pad = (hi - lo) * 0.08 || hi * 0.1; if (!bars) lo -= pad; hi += pad;
+  const step = niceStep(hi - lo, 4), y0 = Math.floor(lo / step) * step, y1 = Math.ceil(hi / step) * step;
+  const X = k => x + L + (k - from) / Math.max(1, to - from) * pw, Y = v => y + T + ph - (v - y0) / (y1 - y0) * ph;
+  c.strokeStyle = '#e3e0d6'; c.lineWidth = 1; c.font = RFONT(14, '500'); c.fillStyle = '#5d6b66'; c.textAlign = 'right'; c.textBaseline = 'middle';
+  for (let v = y0; v <= y1 + 1e-9; v += step) { c.beginPath(); c.moveTo(x + L, Y(v)); c.lineTo(x + L + pw, Y(v)); c.stroke(); c.fillText(fmtY(v), x + L - 8, Y(v)); }
+  c.textAlign = 'center'; c.textBaseline = 'top';
+  for (let k = from; k <= to; k++) if (M[k].slice(5) === '01') { c.strokeStyle = '#d6d2c8'; c.beginPath(); c.moveTo(X(k), y + T + ph); c.lineTo(X(k), y + T + ph + 5); c.stroke(); c.fillText(M[k].slice(0, 4), X(k), y + T + ph + 8); }
+  (bars || []).forEach(s => { const bw = Math.max(2, pw / (to - from + 1) * 0.7); c.fillStyle = s.color; for (let k = from; k <= to; k++) { const v = s.data[k]; if (v === null || v === undefined) continue; c.fillRect(X(k) - bw / 2, Y(v), bw, Y(y0) - Y(v)); } });
+  (lines || []).forEach(s => { c.save(); c.strokeStyle = s.color; c.lineWidth = s.width || 3; c.lineJoin = 'round'; if (s.dash) c.setLineDash(s.dash); c.beginPath(); let on = false;
+    for (let k = from; k <= to; k++) { const v = s.data[k]; if (v === null || v === undefined) { on = false; continue; } if (!on) { c.moveTo(X(k), Y(v)); on = true; } else c.lineTo(X(k), Y(v)); } c.stroke(); c.restore(); });
+  const s0 = (lines || [])[0]; if (s0 && s0.data[to] !== null && s0.data[to] !== undefined) { c.fillStyle = s0.color; c.beginPath(); c.arc(X(to), Y(s0.data[to]), 5, 0, 7); c.fill(); }
+  c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+}
+const movAvg = (arr, n) => arr.map((_, k) => { let s = 0, m = 0; for (let j = k - n + 1; j <= k; j++) if (j >= 0 && arr[j] !== null && arr[j] !== undefined) { s += arr[j]; m++; } return m >= Math.ceil(n * 0.75) ? s / m : null; });
+function kpiTiles(c, x, y, w, h, cols, l, t, i) {
+  const md = medAt(t, l, i), av = v(t, l, 'avg', i), s = v(t, l, 'sales', i), sn = snlr(t, l, i), inv = implied(t, l, i), dom = v(t, l, 'dom', i);
+  const chg = (a, b) => a !== null && b ? a / b - 1 : null, sp = p => p === null ? '' : (p >= 0 ? '+' : '') + (p * 100).toFixed(1) + '% vs. a year earlier';
+  const tiles = [['Median price', fmt.usd(md), sp(chg(md, medAt(t, l, i - 12)))], ['Average price', fmt.usd(av), sp(chg(av, v(t, l, 'avg', i - 12)))], ['Sales', fmt.n(s), sp(chg(s, v(t, l, 'sales', i - 12)))],
+    ['Sales-to-new-listings', fmt.p0(sn), sn === null ? '' : sn < 0.4 ? 'Buyer’s market (under 40%)' : sn < 0.6 ? 'Balanced market (40–60%)' : 'Seller’s market (over 60%)'], ['Implied inventory', inv === null ? '–' : inv.toFixed(1) + ' months', 'active listings ÷ sales'], ['Days on market', dom === null ? '–' : Math.round(dom) + ' days', sp(chg(dom, v(t, l, 'dom', i - 12)))]];
+  const rows = Math.ceil(tiles.length / cols), tw = (w - (cols - 1) * 16) / cols, th = (h - (rows - 1) * 16) / rows;
+  tiles.forEach(([k, val, sub], j) => { const tx0 = x + (j % cols) * (tw + 16), ty0 = y + Math.floor(j / cols) * (th + 16);
+    c.fillStyle = '#f4f2ec'; c.fillRect(tx0, ty0, tw, th); c.fillStyle = '#c9a646'; c.fillRect(tx0, ty0, 6, th);
+    c.textAlign = 'left'; c.textBaseline = 'alphabetic'; c.fillStyle = '#5d6b66'; c.font = RFONT(16, '700'); c.fillText(k.toUpperCase(), tx0 + 22, ty0 + 34);
+    c.fillStyle = '#123d2f'; c.font = RFONT(Math.min(40, th * 0.32), '800'); c.fillText(val, tx0 + 22, ty0 + th * 0.62);
+    const neg = /^-/.test(sub), pos = /^\+/.test(sub); c.fillStyle = neg ? '#b3261e' : pos ? '#1f7a4d' : '#5d6b66'; c.font = RFONT(15.5, '600'); c.fillText(sub, tx0 + 22, ty0 + th - 20); });
+}
+
+/* --- Market Snapshot: the selected area's market in one landscape image (for a report's Market section) --- */
+async function snapshotImage() {
+  const t = S.t, l = S.l, i = S.m, name = LOCS[l], W = 1600, HEAD = 128, H = 980, FOOT = 60;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d'); c.fillStyle = '#fff'; c.fillRect(0, 0, W, H);
+  const reg = locRegion(l), subj = LM.pinComm && LM.pinComm.l === l ? '  ·  Subject community: ' + LM.pinComm.n : '';
+  reportHeader(c, W, HEAD, 'Market Snapshot – ' + name, typeName() + '  ·  ' + monthLabel(i) + (reg ? '  ·  ' + reg : ''), 'TRREB Market Watch figures for ' + name + subj);
+  kpiTiles(c, 30, HEAD + 34, 620, 560, 2, l, t, i);
+  const med = M.map((_, k) => medAt(t, l, k)), from = Math.max(0, i - 59);
+  drawMiniChart(c, 690, HEAD + 70, 880, 330, { from, to: i, title: 'Median price – last 5 years', fmtY: fmt.usdK, lines: [{ data: med, color: '#9db6cc', width: 2 }, { data: movAvg(med, 12), color: '#123d2f', width: 3.6 }] });
+  c.font = RFONT(14, '600'); c.fillStyle = '#5d6b66'; c.fillText('Thin line: monthly median as published  ·  heavy line: 12-month average', 764, HEAD + 430);
+  const sales = M.map((_, k) => v(t, l, 'sales', k));
+  drawMiniChart(c, 690, HEAD + 500, 880, 210, { from, to: i, title: 'Sales per month', fmtY: fmt.n, bars: [{ data: sales, color: '#a9c7de' }], lines: [{ data: movAvg(sales, 12), color: '#123d2f', width: 3 }] });
+  // one plain sentence of reading
+  const tr = medTrend(t, l, i), sn = snlr(t, l, i);
+  c.fillStyle = '#1b2320'; c.font = RFONT(19, '500');
+  const txt = name + ': the median price for ' + typeName().toLowerCase() + ' was ' + fmt.usd(medAt(t, l, i)) + ' in ' + monthLabel(i) + (tr === null ? '' : ', and the three-month average is ' + (Math.abs(tr) <= 0.02 ? 'little changed' : (tr > 0 ? 'up ' : 'down ') + Math.abs(tr * 100).toFixed(1) + '%') + ' from a year earlier') + '. ' + (sn === null ? '' : 'With a sales-to-new-listings ratio of ' + fmt.p0(sn) + ', conditions read as a ' + (sn < 0.4 ? 'buyer’s' : sn < 0.6 ? 'balanced' : 'seller’s') + ' market.');
+  wrapText(c, txt, 30, HEAD + 640, 620, 28, 6);
+  c.fillStyle = '#f4f2ec'; c.fillRect(0, H - FOOT, W, FOOT); c.fillStyle = '#4b5853'; c.font = RFONT(14.5, '500');
+  c.fillText('Source: TRREB Market Watch (MLS® summary of existing home transactions), as published. Figures are for the TRREB district / municipality; months with fewer than ' + SMALL + ' sales are less reliable.', 24, H - 34);
+  c.fillText('Prepared by Home Value Inc. from the HVI District & Property Type Trends dashboard.', 24, H - 13);
+  return toBlobRes(cv);
+}
+
+/* --- Area Brief: one portrait page for the selected area (map, figures, trends, commentary, neighbours) --- */
+async function briefImage() {
+  const t = S.t, l = S.l, i = S.m, name = LOCS[l], W = 1700, H = 2200, HEAD = 128;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d'); c.fillStyle = '#fff'; c.fillRect(0, 0, W, H);
+  const reg = locRegion(l);
+  reportHeader(c, W, HEAD, 'Area Brief – ' + name, typeName() + '  ·  ' + monthLabel(i) + (reg ? '  ·  ' + reg : ''), LM.pinComm && LM.pinComm.l === l ? 'Subject: ' + (LM.pinQuery || '') + '  ·  community: ' + LM.pinComm.n : 'TRREB Market Watch figures, with the HVI dashboard map');
+  // map: the Location map exactly as it is on screen
+  let y = HEAD + 30; const mapCv = $('lmMap') && $('lmMap').querySelector('canvas');
+  if (mapCv) { try { const mw = W - 60, mh = Math.min(760, mw * mapCv.height / mapCv.width); c.drawImage(mapCv, 30, y, mw, mh); c.strokeStyle = '#d6d2c8'; c.lineWidth = 2; c.strokeRect(30, y, mw, mh);
+      c.fillStyle = 'rgba(255,255,255,.9)'; c.fillRect(40, y + mh - 40, 760, 30); c.fillStyle = '#33413c'; c.font = RFONT(15, '600'); c.textBaseline = 'middle'; c.fillText('Map shaded by ' + MK[S.lm].n.toLowerCase() + ' – ' + (MK[S.lm].noType ? rentQ(lmMonth()) : monthLabel(lmMonth())), 50, y + mh - 25); c.textBaseline = 'alphabetic';
+      y += mh + 34; } catch (e) { } }
+  kpiTiles(c, 30, y, W - 60, 300, 3, l, t, i); y += 340;
+  const med = M.map((_, k) => medAt(t, l, k)), sales = M.map((_, k) => v(t, l, 'sales', k)), from = Math.max(0, i - 59);
+  drawMiniChart(c, 30, y + 30, 800, 300, { from, to: i, title: 'Median price – last 5 years', fmtY: fmt.usdK, lines: [{ data: med, color: '#9db6cc', width: 2 }, { data: movAvg(med, 12), color: '#123d2f', width: 3.6 }] });
+  drawMiniChart(c, 870, y + 30, 800, 300, { from, to: i, title: 'Sales per month', fmtY: fmt.n, bars: [{ data: sales, color: '#a9c7de' }], lines: [{ data: movAvg(sales, 12), color: '#123d2f', width: 3 }] });
+  y += 380;
+  // commentary from the dashboard
+  const narr = ($('narr') && $('narr').textContent || '').trim();
+  c.fillStyle = '#1b2320'; c.font = RFONT(21, '700'); c.fillText('Market commentary', 30, y); y += 34; c.font = RFONT(19, '500'); c.fillStyle = '#33413c';
+  const used = narr ? wrapText(c, narr, 30, y, 1000, 29, 11) : 0;
+  // neighbours / member areas
+  const geo = mapGeo(), area = geo.areas.find(a => a.l === l);
+  let list = area ? area.nb.map(j => geo.areas[j]).filter(a => a.l >= 0).map(a => a.l) : ((D.hierarchy.find(([r]) => r === name) || [null, []])[1]).map(n => LOCS.indexOf(n)).filter(x => x >= 0);
+  if (name === 'TREB Overall') list = D.hierarchy.map(([r]) => r).filter(r => r !== 'TREB Overall' && !(D.parent || {})[r]).map(n => LOCS.indexOf(n)).filter(x => x >= 0);
+  if (name === 'City of Toronto') list = Object.keys(D.parent || {}).filter(r => D.parent[r] === name).map(n => LOCS.indexOf(n));
+  const me = medAt(t, l, i), rows = list.map(li => [li, medAt(t, li, i)]).sort((a, b) => (b[1] ?? -1) - (a[1] ?? -1)).slice(0, 10);
+  let yy = y - 34; c.fillStyle = '#1b2320'; c.font = RFONT(21, '700'); c.fillText(area ? 'Bordering areas – median price' : 'Areas within – median price', 1070, yy); yy += 34;
+  rows.forEach(([li, x], j) => { if (j % 2 === 0) { c.fillStyle = '#f4f2ec'; c.fillRect(1062, yy - 22, 608, 32); } c.fillStyle = '#1b2320'; c.font = RFONT(18, '600'); c.fillText(LOCS[li], 1074, yy); c.textAlign = 'right'; c.fillText(fmt.usd(x), 1540, yy);
+    const d = x !== null && me ? x / me - 1 : null; c.fillStyle = d === null ? '#5d6b66' : d >= 0 ? '#1f7a4d' : '#b3261e'; c.font = RFONT(15, '600'); c.fillText(d === null ? '' : fmt.sp1(d), 1660, yy); c.textAlign = 'left'; yy += 32; });
+  c.fillStyle = '#f4f2ec'; c.fillRect(0, H - 70, W, 70); c.fillStyle = '#4b5853'; c.font = RFONT(15, '500');
+  c.fillText('Source: TRREB Market Watch, as published; months with fewer than ' + SMALL + ' sales are less reliable. Boundaries: PropTx community map (August 2025 release); ' + (LM.base === 'satellite' ? BASE_CREDIT.satellite : BASE_CREDIT.streets) + '.', 24, H - 40);
+  c.fillText('Prepared by Home Value Inc. from the HVI District & Property Type Trends dashboard.', 24, H - 16);
+  return toBlobRes(cv);
 }
 
 function cmpSpark(a, b, w, h, na, nb) {       // two median-price lines for the side-by-side comparison
