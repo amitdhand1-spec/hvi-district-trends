@@ -460,6 +460,14 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
 .busy{position:fixed;inset:0;background:#023221cc;color:#fff;display:none;align-items:center;justify-content:center;z-index:40;font-size:16px;font-family:var(--title-font)}
 .busy.show{display:flex}
 .lmpcl{margin-top:8px;border:1px solid var(--card-edge);border-left:3px solid #c62828;border-radius:10px;padding:10px 12px;background:#fbfaf6;font-size:13px;color:var(--ink)}.lmpcl b{color:var(--dark)}.lmpcl .row{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:4px}.lmpcl .newtag{background:#c8a046;color:#fff;border-radius:6px;font-size:10px;padding:1px 5px;margin-left:4px;vertical-align:1px}.pcltip{min-width:200px}.pclhr{border:0;border-top:1px solid rgba(255,255,255,.25);margin:6px 0}
+.lmwrap>div:first-child{position:relative}
+.lmtime{display:none!important}
+.lmleg{position:absolute;left:10px;bottom:10px;z-index:3;margin:0;max-width:calc(100% - 330px);background:rgba(255,255,255,.93);border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:6px 9px;font-size:11px;gap:3px 10px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+@media (max-width:760px){.lmleg{position:static;max-width:none;margin-top:8px;box-shadow:none}}
+.lmsrc{border:0;background:none;padding:0;font:inherit;color:#2f6f9f;cursor:pointer;text-decoration:underline dotted}
+#lmNote{display:none}#lmNote.show{display:block}
+.lmlu{flex-basis:100%;display:flex;flex-wrap:wrap;gap:3px 10px;align-items:center}.lmlu .lusw{display:inline-flex;align-items:center;gap:4px}.lmlu .lusw i{width:11px;height:11px;border-radius:2px;opacity:.75;display:inline-block}
+.lmpcl.lmsel{border-left-color:#c77700}
 </style>
 </head>
 <body>
@@ -537,16 +545,18 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
       <div class="grid noexp" id="locRow"><div class="card" id="cardLocMap">
         <div class="hd"><div><h3 id="lmTitle">Location</h3><div class="st" id="lmSub"></div></div><div class="r"><label class="lmlab">Shade by <select id="lmMet" class="mpdd"></select></label><button class="btn sec small" id="lmFs" title="Show the map full screen">Full screen</button><button class="btn sec small" id="lmFull">Larger map</button></div></div>
         <div class="lmbar">
-          <form id="lmSearch" autocomplete="off"><input id="lmQ" list="lmList" placeholder="Search an area, district code, address or postal code&hellip;" aria-label="Search the map"><button class="btn small">Go</button><span class="rwrap"><button type="button" class="btn sec small" id="lmRecentBtn" title="Subjects you searched recently (kept in this browser)">Recent &#9662;</button><div class="lmrecent" id="lmRecent" hidden></div></span></form><datalist id="lmList"></datalist>
+          <form id="lmSearch" autocomplete="off"><input id="lmQ" list="lmList" placeholder="Search an area, district code, address or postal code&hellip;" aria-label="Search the map"><button class="btn small">Go</button><button type="button" class="btn small" id="lmPlot" title="Find the address and go straight to street level – in Mississauga the lot lines show">Plot Map</button><span class="rwrap"><button type="button" class="btn sec small" id="lmRecentBtn" title="Subjects you searched recently (kept in this browser)">Recent &#9662;</button><div class="lmrecent" id="lmRecent" hidden></div></span></form><datalist id="lmList"></datalist>
           <button class="btn sec small" id="lmFindBtn" title="Highlight the areas that meet conditions you set">Find areas&hellip;</button>
           <button class="btn sec small" id="lmCompsBtn" title="Put your comparables on the map, numbered, with distances from the subject">Comparables&hellip;</button>
           <button class="btn sec small" id="lmCmpBtn" title="Compare the selected area with another, side by side (or Shift + click an area on the map)">Compare&hellip;</button>
           <label class="lmlab" title="Background shown once you zoom in to community level">Base <select id="lmBase" class="mpdd"><option value="streets">Streets</option><option value="satellite">Satellite</option><option value="none">None</option></select></label>
+          <button class="btn sec small" id="lmLu" title="Colour each lot by its existing land use (City of Mississauga Open Data, May 2020) – Mississauga, at street level">Colour lots by use</button>
           <button class="btn sec small" id="lmArrows" title="Arrows beside each area name: is the median price trending up or down?">Trend arrows</button>
           <button class="btn sec small" id="lmReset" title="Back to the map the page opens with: TREB Overall (whole GTA), All Home Types, the latest month, median-price shading - clears the search pin, comparables, zoom, filters, comparison and time slider">Reset map</button>
         </div>
         <div class="lmbar lmrep"><span class="lmreplab">Report images:</span>
           <button class="btn small cmapbtn" id="lmCmap" disabled>&#128205; Community map</button>
+          <button class="btn small repbtn" id="lmPmap" disabled>Plot map</button>
           <button class="btn small repbtn" id="lmCompsMap" disabled>Comparables map</button>
           <button class="btn small repbtn" id="lmSnap" title="One landscape image of the selected area's market: key figures, 5-year price trend, sales">Market snapshot</button>
           <button class="btn small repbtn" id="lmBrief" title="A one-page brief for the selected area: map, figures, trends, commentary and neighbouring areas (PNG or PDF)">Area brief</button>
@@ -558,6 +568,7 @@ table.rank .pos{color:var(--pos)} table.rank .neg{color:var(--neg)}
           <div class="lmtime"><button class="btn sec small" id="lmPlay" title="Play through the months">&#9654;</button><input type="range" id="lmT" min="0" step="1" aria-label="Map month"><span id="lmTlab"></span><button class="lnk2" id="lmTnow" hidden>Back to the dashboard month</button></div>
           <div class="lmleg" id="lmLeg"></div></div><div class="mpside lmside" id="lmSide"></div></div>
         <div class="lmpcl" id="lmPcl" hidden></div>
+        <div class="lmpcl lmsel" id="lmPclSel" hidden></div>
         <div class="note" id="lmNote"></div>
       </div></div>
 
@@ -2155,25 +2166,82 @@ const MAP_NA = '#e2e1dc';
 const COMM_SC = 2.6;   // screen px per map unit (about 57 m per px) from which community outlines appear
 const MAP_CREDIT = 'Community, district and municipal boundaries from the PropTx community map (August 2025 release), clipped to the Statistics Canada 2021 shoreline; freeways \u00a9 Statistics Canada 2021 / National Road Network (Open Government Licence \u2013 Canada).';
 /* --- Lot lines: City of Mississauga Open Data parcels, loaded live for the visible street block  --- */
-const PCL = { on: true, SC: 70, cells: new Map(), byPin: new Map(), list: [], live: 0, err: 0, subj: null, subjFor: null,
+const PCL = { on: true, SC: 70, NUM_SC: 150, cells: new Map(), byPin: new Map(), list: [], live: 0, err: 0, subj: null, subjFor: null,
+  addrs: [], addrKey: new Set(), addrOfPin: new Map(), elu: [], eluKey: new Set(), lu: false,
   URL: 'https://services6.arcgis.com/hM5ymMLbxIyWTjn2/arcgis/rest/services/Parcel/FeatureServer/0/query',
   BOX: [43.47, -79.82, 43.75, -79.52], DLA: 0.004, DLO: 0.0055 };
+const PCL_SRV = 'https://services6.arcgis.com/hM5ymMLbxIyWTjn2/arcgis/rest/services/';
+// City of Mississauga "Existing Land Use" (May 2020) grouped into property-type colours; roads, walkways, parking, utilities: no colour
+const PCL_LU = [
+  ['Detached', '#f4bf4f', ['Residential Detached']],
+  ['Semi-detached', '#f08a4b', ['Residential Semi-Detached']],
+  ['Townhouse (row)', '#e05a7a', ['Residential Row Dwellings']],
+  ['Other multiples', '#c070d6', ['Residential Other Multiples']],
+  ['Apartments', '#7d4cc4', ['Residential Apartments']],
+  ['Mixed residential / commercial', '#b07a8a', ['Mixed Residential Commercial (less than 5 Storeys)', 'Mixed Residential Commercial (5 Storeys or more)']],
+  ['Commercial / office', '#3f86d6', ['General Retail Commercial', 'Other Retail', 'Automotive Service Commercial', 'Office']],
+  ['Industrial', '#7f8a99', ['Industrial General', 'Industrial Heavy', 'Industrial and Commercial Multiples']],
+  ['Institutional / community', '#2fa59c', ['School', 'Public / Institutional', 'Community / Cultural', 'Places of Religious Assembly']],
+  ['Open space / farm', '#6fb35f', ['Open Space / Greenlands', 'Farm']],
+  ['Vacant', '#e8dc6a', ['Vacant']]];
+const PCL_LU_OF = {}; PCL_LU.forEach((g, i) => g[2].forEach(d => { PCL_LU_OF[d] = i; }));
 const pclInMiss = (la, lo) => la > PCL.BOX[0] && la < PCL.BOX[2] && lo > PCL.BOX[1] && lo < PCL.BOX[3];
+function pclGeom(g) {          // GeoJSON polygon -> map-unit rings, lon/lat rings and bounding box
+  const geo = mapGeo(), polys = !g ? [] : g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : []; const rings = [], ll = [];
+  for (const poly of polys) for (const r of poly) { const a = new Float32Array(r.length * 2); r.forEach(([lo, la], k) => { const [x, y] = geo.toUnits(la, lo); a[2 * k] = x; a[2 * k + 1] = y; }); rings.push(a); ll.push(r); }
+  if (!rings.length) return null; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const r of rings) for (let k = 0; k < r.length; k += 2) { x0 = Math.min(x0, r[k]); x1 = Math.max(x1, r[k]); y0 = Math.min(y0, r[k + 1]); y1 = Math.max(y1, r[k + 1]); }
+  return { rings, ll, bb: [x0, y0, x1, y1] };
+}
+const pclJson = url => fetch(url).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+function pclAddParcels(j) {
+  for (const f of j.features || []) { const pin = String(f.properties.CITY_PIN || ''), fk = String(f.properties.FID ?? f.id ?? pin); if (PCL.byPin.has(fk)) continue;
+    const g = pclGeom(f.geometry); if (!g) continue; const p = Object.assign({ pin, m2: +f.properties.GIS_AREA || 0 }, g); PCL.byPin.set(fk, p); PCL.list.push(p); }
+}
+function pclLoadElu(cell) {
+  if (cell.eluP) return cell.eluP;
+  cell.eluP = pclJson(PCL_SRV + 'Existing_Land_Use/FeatureServer/0/query?where=1%3D1&geometry=' + cell.env + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=OBJECTID,ELU_DESCRIPTION&returnGeometry=true&outSR=4326&geometryPrecision=6&resultRecordCount=2000&f=geojson')
+    .then(j => { for (const f of j.features || []) { const id = String(f.properties.OBJECTID ?? f.id); if (PCL.eluKey.has(id)) continue; PCL.eluKey.add(id);
+      const g = pclGeom(f.geometry), gi = PCL_LU_OF[f.properties.ELU_DESCRIPTION]; if (g) PCL.elu.push(Object.assign({ g: gi === undefined ? -1 : gi, d: f.properties.ELU_DESCRIPTION }, g)); }
+      PCL.eluN = (PCL.eluN || 0) + 1; })
+    .catch(e => { cell.eluP = null; console.warn('Land use', e); });
+  return cell.eluP;
+}
 function pclLoad(key, la0, lo0, st) {
-  const cell = { state: 'load' }; PCL.cells.set(key, cell); PCL.live++;
-  const geo = mapGeo(), q = '?where=1%3D1&geometry=' + [lo0, la0, lo0 + PCL.DLO, la0 + PCL.DLA].map(x => x.toFixed(5)).join(',') +
-    '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=FID,CITY_PIN,GIS_AREA&returnGeometry=true&outSR=4326&geometryPrecision=6&resultRecordCount=2000&f=geojson';
-  fetch(PCL.URL + q).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(j => {
-    for (const f of j.features || []) { const pin = String(f.properties.CITY_PIN || ''), g = f.geometry; const fk = String(f.properties.FID ?? f.id ?? pin); if (!g || PCL.byPin.has(fk)) continue;
-      const polys = g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : []; const rings = [], ll = [];
-      for (const poly of polys) for (const r of poly) { const a = new Float32Array(r.length * 2); r.forEach(([lo, la], k) => { const [x, y] = geo.toUnits(la, lo); a[2 * k] = x; a[2 * k + 1] = y; }); rings.push(a); ll.push(r); }
-      if (!rings.length) continue; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const r of rings) for (let k = 0; k < r.length; k += 2) { x0 = Math.min(x0, r[k]); x1 = Math.max(x1, r[k]); y0 = Math.min(y0, r[k + 1]); y1 = Math.max(y1, r[k + 1]); }
-      const p = { pin, m2: +f.properties.GIS_AREA || 0, rings, ll, bb: [x0, y0, x1, y1] }; PCL.byPin.set(fk, p); PCL.list.push(p); }
-    cell.state = 'ok'; cell.full = !!(j.properties && j.properties.exceededTransferLimit) || (j.features || []).length >= 2000;
-  }).catch(e => { cell.state = 'err'; cell.t = Date.now(); PCL.err++; console.warn('Parcels', e); })
-    .finally(() => { PCL.live--; clearTimeout(PCL.rt); PCL.rt = setTimeout(() => { if (st.cur && st.dims) drawFrame(st, st.dims.W, st.dims.H, st.cur, false); }, 80); });
+  const cell = { state: 'load', env: [lo0, la0, lo0 + PCL.DLO, la0 + PCL.DLA].map(x => x.toFixed(5)).join(',') }; PCL.cells.set(key, cell); PCL.live++;
+  const env = '&geometry=' + cell.env + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&resultRecordCount=2000';
+  const parcels = pclJson(PCL.URL + '?where=1%3D1' + env + '&outFields=FID,CITY_PIN,GIS_AREA&returnGeometry=true&outSR=4326&geometryPrecision=6&f=geojson').then(j => {
+    pclAddParcels(j); cell.full = !!(j.properties && j.properties.exceededTransferLimit) || (j.features || []).length >= 2000; });
+  const geo = mapGeo();
+  const addrs = pclJson(PCL_SRV + 'Address/FeatureServer/0/query?where=1%3D1' + env + '&outFields=STNO,UNIT_NO,STNAME,FULLNAME,CITY_PIN,LATITUDE,LONGITUDE&returnGeometry=false&f=json').then(j => {
+    for (const f of j.features || []) { const a = f.attributes; if (!a.STNO || !a.LATITUDE) continue; const pin = String(a.CITY_PIN || ''), k = a.STNO + '|' + a.STNAME + '|' + pin;
+      if (!PCL.addrOfPin.has(pin) || !a.UNIT_NO) PCL.addrOfPin.set(pin, (a.FULLNAME || (a.STNO + ' ' + a.STNAME)).replace(/\s+/g, ' ').trim());
+      if (PCL.addrKey.has(k)) continue; PCL.addrKey.add(k); const [ux, uy] = geo.toUnits(a.LATITUDE, a.LONGITUDE); PCL.addrs.push({ no: String(a.STNO), pin, ux, uy }); } })
+    .catch(e => console.warn('Address points', e));          // house numbers are a nice-to-have: lot lines still show without them
+  cell.p = Promise.all([parcels, addrs, PCL.lu ? pclLoadElu(cell) : null]).then(() => { cell.state = 'ok'; })
+    .catch(e => { cell.state = 'err'; cell.t = Date.now(); PCL.err++; console.warn('Parcels', e); })
+    .finally(() => { PCL.live--; clearTimeout(PCL.rt); PCL.rt = setTimeout(() => { if (st && st.cur && st.dims) drawFrame(st, st.dims.W, st.dims.H, st.cur, false); }, 80); });
+  return cell.p;
+}
+// load every cell under a lon/lat box (used by the Plot Map image, which can frame an area the screen isn't showing)
+function pclEnsure(la0, lo0, la1, lo1) {
+  const ps = [];
+  for (let a = Math.floor(la0 / PCL.DLA); a <= Math.floor(la1 / PCL.DLA); a++) for (let o = Math.floor(lo0 / PCL.DLO); o <= Math.floor(lo1 / PCL.DLO); o++) {
+    const key = a + ',' + o; let cl = PCL.cells.get(key);
+    if (!cl || cl.state === 'err') { pclLoad(key, a * PCL.DLA, o * PCL.DLO, MAPS.loc); cl = PCL.cells.get(key); }
+    ps.push(cl.p); if (PCL.lu) ps.push(cl.p.then(() => pclLoadElu(cl))); }
+  return Promise.all(ps);
 }
 function pclAt(ux, uy) { let best = null; for (const p of PCL.list) if (inRings(p.rings, p.bb, ux, uy) && (!best || p.m2 < best.m2)) best = p; return best; }
+function pclPoint(p) {         // a point inside the lot, for its land use and its label
+  if (p.lp) return p.lp; const [x0, y0, x1, y1] = p.bb; let pt = [(x0 + x1) / 2, (y0 + y1) / 2];
+  if (!inRings(p.rings, p.bb, pt[0], pt[1])) { pt = null; for (let i = 1; i < 6 && !pt; i++) for (let k = 1; k < 6 && !pt; k++) { const x = x0 + (x1 - x0) * i / 6, y = y0 + (y1 - y0) * k / 6; if (inRings(p.rings, p.bb, x, y)) pt = [x, y]; } }
+  return (p.lp = pt || [p.rings[0][0], p.rings[0][1]]);
+}
+function pclLu(p) {            // index into PCL_LU, -1 for none / not residential-commercial etc., undefined while unknown
+  if (p.lu !== undefined && p.luN === PCL.eluN) return p.lu; if (!PCL.elu.length) return undefined;
+  const [x, y] = pclPoint(p); let hit = null; for (const e of PCL.elu) if (inRings(e.rings, e.bb, x, y)) { hit = e; break; }
+  p.luN = PCL.eluN; p.luD = hit ? hit.d : ''; return (p.lu = hit ? hit.g : -1);
+}
 function pclRect(p) {          // smallest rectangle around the lot outline, in feet: an approximate width x depth
   const r = p.ll[0], la0 = r[0][1], kx = 111320 * Math.cos(la0 * Math.PI / 180), ky = 110540;
   const pts = r.map(([lo, la]) => [(lo - r[0][0]) * kx, (la - la0) * ky]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
@@ -2190,30 +2258,133 @@ const pclSf = m2 => Math.round(m2 * 10.7639);
 function pclSales(p) { const s = window.PSALES && PSALES[p.pin]; return s ? { addr: s[0], list: s[1] } : null; }
 const pclDate = d => { const s = String(d).padStart(6, '0'); return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][+s.slice(2, 4) - 1] + ' ' + s.slice(4, 6).replace(/^0/, '') + ', 20' + s.slice(0, 2); };
 const PCL_TY = { D: 'Detached', S: 'Semi', T: 'Townhouse', L: 'Link' };
+const pclSubject = st => PCL.subjPin ? (PCL.list.find(p => p.pin === PCL.subjPin) || null) : (st && st.pin && !PCL.subjBusy ? pclAt(st.pin[0], st.pin[1]) : null);
+// house numbers: one per address point, skipping any that would overlap one already placed
+function pclNumbers(c, list, tx, ty, W, H, size, top, avoid, all) {
+  c.save(); c.font = '600 ' + size + 'px system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+  const placed = (avoid || []).slice(), hit = b => placed.some(q => b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1]); let n = 0;
+  for (const a of list) { const x = tx(a.ux), y = ty(a.uy); if (x < 6 || x > W - 6 || y < top + 6 || y > top + H - 6) continue;
+    const w = c.measureText(a.no).width + 4, b = [x - w / 2, y - size * 0.62, x + w / 2, y + size * 0.62]; if (!all && hit(b)) continue; placed.push(b);
+    c.strokeStyle = 'rgba(255,255,255,.95)'; c.lineWidth = Math.max(3, size * 0.28); c.strokeText(a.no, x, y); c.fillStyle = '#26302c'; c.fillText(a.no, x, y); if (++n > (all ? 5000 : 900)) break; }
+  c.restore();
+}
+function pclLuLegend(show) {
+  const leg = $('lmLeg'); if (!leg) return; let el = leg.querySelector('.lmlu');
+  if (!show) { if (el) el.remove(); return; } if (el) return;
+  leg.insertAdjacentHTML('beforeend', '<span class="lmlu"><b>Land use:</b> ' + PCL_LU.map(g => '<span class="lusw"><i style="background:' + g[1] + '"></i>' + g[0] + '</span>').join('') + '</span>');
+}
 function pclDraw(st, c, vb, sc, W, H, path, commOn) {
   st.pclShown = false; const geo = mapGeo(), [la, lo] = geo.toLL((vb[0] + vb[2]) / 2, (vb[1] + vb[3]) / 2), inM = pclInMiss(la, lo);
   const badge = t => { c.save(); c.font = '600 11px system-ui,sans-serif'; const w = c.measureText(t).width + 14; c.fillStyle = 'rgba(255,255,255,.92)'; c.strokeStyle = 'rgba(0,0,0,.15)'; c.fillRect(8, 8, w, 22); c.strokeRect(8.5, 8.5, w - 1, 21); c.fillStyle = '#33413c'; c.textBaseline = 'middle'; c.fillText(t, 15, 19.5); c.restore(); };
-  if (!PCL.on || !commOn || !inM) return;
-  if (sc < PCL.SC) { badge('Zoom in to see lot lines'); return; }
+  if (!PCL.on || !commOn || !inM) { pclLuLegend(false); return; }
+  if (sc < PCL.SC) { pclLuLegend(false); badge('Zoom in to see lot lines'); return; }
   const [laT, loL] = geo.toLL(vb[0], vb[1]), [laB, loR] = geo.toLL(vb[2], vb[3]); let want = 0;
   for (let a = Math.floor(laB / PCL.DLA); a <= Math.floor(laT / PCL.DLA); a++) for (let o = Math.floor(loL / PCL.DLO); o <= Math.floor(loR / PCL.DLO); o++) {
     const la0 = a * PCL.DLA, lo0 = o * PCL.DLO; if (la0 + PCL.DLA < PCL.BOX[0] || la0 > PCL.BOX[2] || lo0 + PCL.DLO < PCL.BOX[1] || lo0 > PCL.BOX[3]) continue;
     const key = a + ',' + o, cl = PCL.cells.get(key); if (++want > 30) continue;
-    if (!cl || (cl.state === 'err' && Date.now() - cl.t > 20000)) pclLoad(key, la0, lo0, st); }
+    if (!cl || (cl.state === 'err' && Date.now() - cl.t > 20000)) pclLoad(key, la0, lo0, st);
+    else if (PCL.lu && cl.state === 'ok' && !cl.eluP) { PCL.live++; pclLoadElu(cl).finally(() => { PCL.live--; if (st.cur && st.dims) drawFrame(st, st.dims.W, st.dims.H, st.cur, false); }); } }
   const inV = bb => !(bb[2] < vb[0] || bb[0] > vb[2] || bb[3] < vb[1] || bb[1] > vb[3]);
   const sat = st.tilesOn && LM.base === 'satellite'; c.save(); c.lineJoin = 'round';
-  c.strokeStyle = sat ? 'rgba(255,230,120,.85)' : 'rgba(110,60,20,.55)'; c.lineWidth = sc > 160 ? 1 : 0.7; let n = 0;
-  for (const p of PCL.list) if (inV(p.bb)) { c.stroke(path(p.rings)); n++; }
-  st.pclShown = n > 0;
+  const vis = PCL.list.filter(p => inV(p.bb));
+  if (PCL.lu) { c.globalAlpha = sat ? 0.5 : 0.42; for (const p of vis) { const g = pclLu(p); if (g >= 0) { c.fillStyle = PCL_LU[g][1]; c.fill(path(p.rings), 'evenodd'); } } c.globalAlpha = 1; }
+  c.strokeStyle = sat ? 'rgba(255,230,120,.85)' : 'rgba(110,60,20,.55)'; c.lineWidth = sc > 160 ? 1 : 0.7;
+  for (const p of vis) c.stroke(path(p.rings));
+  const n = vis.length; st.pclShown = n > 0;
   const hl = (p, fill, col, w) => { const pp = path(p.rings); if (fill) { c.fillStyle = fill; c.fill(pp, 'evenodd'); } c.strokeStyle = '#fff'; c.lineWidth = w + 2.5; c.stroke(pp); c.strokeStyle = col; c.lineWidth = w; c.stroke(pp); };
   for (const cp of st.comps || []) { if (cp.bad) continue; const p = pclAt(cp.ux, cp.uy); if (p) hl(p, 'rgba(31,78,140,.16)', '#1f4e8c', 2); }
-  const sp = st.pin ? pclAt(st.pin[0], st.pin[1]) : null; if (sp) hl(sp, 'rgba(198,40,40,.16)', '#c62828', 2.4);
-  if (st.hoverP && st.hoverP !== sp) hl(st.hoverP, 'rgba(255,255,255,.12)', '#1b2320', 1.8);
-  if (sp && (sp.bb[2] - sp.bb[0]) * sc > 54) { const t = fmt.n(pclSf(sp.m2)) + ' sf', x = (sp.bb[0] + sp.bb[2]) / 2 * sc - vb[0] * sc, y = (sp.bb[1] + sp.bb[3]) / 2 * sc - vb[1] * sc + 16;
-    c.font = '700 11px system-ui,sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.strokeStyle = 'rgba(255,255,255,.95)'; c.lineWidth = 3; c.strokeText(t, x, y); c.fillStyle = '#8e1c16'; c.fillText(t, x, y); }
+  const sp = pclSubject(st); if (sp) hl(sp, 'rgba(198,40,40,.16)', '#c62828', 2.4);
+  if (PCL.sel && PCL.sel !== sp) hl(PCL.sel, 'rgba(232,163,23,.25)', '#c77700', 3);
+  if (st.hoverP && st.hoverP !== sp && st.hoverP !== PCL.sel) hl(st.hoverP, 'rgba(255,255,255,.12)', '#1b2320', 1.8);
+  const tx = x => (x - vb[0]) * sc, ty = y => (y - vb[1]) * sc, avoid = [[0, 0, 420, 34]];
+  if (sp && (sp.bb[2] - sp.bb[0]) * sc > 54) { const t = fmt.n(pclSf(sp.m2)) + ' sf', [lx, ly] = pclPoint(sp), x = tx(lx), y = ty(ly) + 16;
+    c.font = '700 11px system-ui,sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.strokeStyle = 'rgba(255,255,255,.95)'; c.lineWidth = 3; c.strokeText(t, x, y); c.fillStyle = '#8e1c16'; c.fillText(t, x, y);
+    const w = c.measureText(t).width; avoid.push([x - w / 2 - 2, y - 8, x + w / 2 + 2, y + 8]); }
+  if (st.pin) { const px = tx(st.pin[0]), py = ty(st.pin[1]); avoid.push([px - 11, py - 28, px + 11, py + 2]); }
+  if (PCL.sel && PCL.sel !== sp && inV(PCL.sel.bb)) { const t = pclAddr(PCL.sel) || ('City PIN ' + PCL.sel.pin), [lx, ly] = pclPoint(PCL.sel), x = tx(lx), y = ty(PCL.sel.bb[1]) - 14;
+    c.font = '700 12px system-ui,sans-serif'; const w = c.measureText(t).width + 14, bx = Math.max(4, Math.min(W - w - 4, x - w / 2)), by = Math.max(36, y - 11);
+    c.fillStyle = '#c77700'; c.fillRect(bx, by, w, 22); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(t, bx + w / 2, by + 11.5); avoid.push([bx, by, bx + w, by + 22]); }
+  if (sc >= PCL.NUM_SC) pclNumbers(c, PCL.addrs.filter(a => a.ux > vb[0] && a.ux < vb[2] && a.uy > vb[1] && a.uy < vb[3]), tx, ty, W, H, sc > 320 ? 11.5 : 10, 0, avoid);
   c.restore();
-  if (PCL.live) badge('Loading lot lines…'); else if (!n && PCL.err) badge('Lot lines could not load – this viewer blocks outside data; open the copy saved in Community Data'); else if (n) badge('Lot lines: City of Mississauga parcels · hover a lot for its area' + (window.PSALES ? ' and sales' : ''));
+  pclLuLegend(PCL.lu && n > 0);
+  if (PCL.live) badge('Loading lot lines…'); else if (!n && PCL.err) badge('Lot lines could not load – this viewer blocks outside data; open the copy saved in Community Data');
+  else if (n) badge('Lot lines: City of Mississauga parcels · hover a lot for its area' + (window.PSALES ? ' and sales' : '') + (sc < PCL.NUM_SC ? ' · zoom in for house numbers' : ''));
   if (sp !== PCL.subj) { PCL.subj = sp; pclPanel(); }
+}
+/* --- Plot Map: a report image of the subject lot and its neighbours, lot lines and house numbers --- */
+async function plotMapBlob() {
+  const geo = mapGeo(), W = 1600, MH = 1150, HEAD = 128, FOOT = PCL.lu ? 118 : 84, H = HEAD + MH + FOOT;
+  await Promise.resolve(PCL.fixP);
+  const pin = LM.pin, [pla, plo] = LM.pinLL;
+  // frame: a few lots either side of the subject, never tighter than ~170 m across
+  let sp = pclSubject({ pin }); let [x0, y0, x1, y1] = sp ? sp.bb : [pin[0], pin[1], pin[0], pin[1]];
+  let cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, w = Math.max((x1 - x0) * 6, (y1 - y0) * 6 * W / MH, 1.15), h = w * MH / W;
+  const vb = [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], [la1, lo0] = geo.toLL(vb[0], vb[1]), [la0, lo1] = geo.toLL(vb[2], vb[3]);
+  await pclEnsure(la0, lo0, la1, lo1); if (!sp) sp = pclSubject({ pin });
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+  const sc = W / w, tx = x => (x - vb[0]) * sc, ty = y => HEAD + (y - vb[1]) * sc;
+  const pathOf = rs => { const p = new Path2D(); for (const r of rs) { p.moveTo(tx(r[0]), ty(r[1])); for (let j = 2; j < r.length; j += 2) p.lineTo(tx(r[j]), ty(r[j + 1])); p.closePath(); } return p; };
+  const inV = bb => !(bb[2] < vb[0] || bb[0] > vb[2] || bb[3] < vb[1] || bb[1] > vb[3]);
+  c.fillStyle = '#f4f2ec'; c.fillRect(0, 0, W, H);
+  c.save(); c.beginPath(); c.rect(0, HEAD, W, MH); c.clip();
+  const kind = LM.base === 'none' ? 'none' : LM.base === 'satellite' ? 'satellite' : 'streets', rt = await reportTiles(c, kind, geo, vb, W, HEAD, MH);
+  if (kind === 'streets' && rt.n) { c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(0, HEAD, W, MH); }
+  const vis = PCL.list.filter(p => inV(p.bb)), sat = kind === 'satellite' && rt.n;
+  c.lineJoin = 'round';
+  if (PCL.lu) { c.globalAlpha = sat ? 0.5 : 0.45; for (const p of vis) { const g = pclLu(p); if (g >= 0) { c.fillStyle = PCL_LU[g][1]; c.fill(pathOf(p.rings), 'evenodd'); } } c.globalAlpha = 1; }
+  c.strokeStyle = sat ? 'rgba(255,230,120,.95)' : '#6b4320'; c.lineWidth = 1.8; for (const p of vis) c.stroke(pathOf(p.rings));
+  const hl = (p, fill, col, lw) => { const pp = pathOf(p.rings); c.fillStyle = fill; c.fill(pp, 'evenodd'); c.strokeStyle = '#fff'; c.lineWidth = lw + 4; c.stroke(pp); c.strokeStyle = col; c.lineWidth = lw; c.stroke(pp); };
+  const comps = (LM.comps || []).filter(cp => !cp.bad);
+  comps.forEach(cp => { const p = pclAt(cp.ux, cp.uy); if (p && inV(p.bb)) hl(p, 'rgba(31,78,140,.18)', '#1f4e8c', 3.5); });
+  if (sp) hl(sp, 'rgba(198,40,40,.22)', '#c62828', 5);
+  const px = tx(pin[0]), py = ty(pin[1]), avoid = [[px - 30, py - 70, px + 140, py + 6], [W - 90, HEAD, W, HEAD + 100], [0, HEAD + MH - 70, 420, HEAD + MH]];
+  let areaTxt = '';
+  if (sp) { const [lx, ly] = pclPoint(sp); let ax = tx(lx), ay = ty(ly) + 26; areaTxt = fmt.n(pclSf(sp.m2)) + ' sf'; c.font = RFONT(22, '800'); const aw = c.measureText(areaTxt).width + 18;
+    ax = Math.max(aw / 2 + 6, Math.min(W - aw / 2 - 6, ax)); c.fillStyle = 'rgba(255,255,255,.95)'; c.strokeStyle = '#c62828'; c.lineWidth = 2.5; c.fillRect(ax - aw / 2, ay - 17, aw, 34); c.strokeRect(ax - aw / 2, ay - 17, aw, 34);
+    c.fillStyle = '#8e1c16'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(areaTxt, ax, ay + 1); avoid.push([ax - aw / 2, ay - 17, ax + aw / 2, ay + 17]); }
+  comps.forEach((cp, j) => { const x = tx(cp.ux), y = ty(cp.uy); if (x < 0 || x > W || y < HEAD || y > HEAD + MH) return; c.save(); c.fillStyle = '#1f4e8c'; c.strokeStyle = '#fff'; c.lineWidth = 3.5; c.beginPath(); c.arc(x, y, 17, 0, 7); c.fill(); c.stroke();
+    c.fillStyle = '#fff'; c.font = RFONT(18, '800'); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(LM.comps.indexOf(cp) + 1), x, y + 1); c.restore(); avoid.push([x - 18, y - 18, x + 18, y + 18]); });
+  pclNumbers(c, PCL.addrs.filter(a => a.ux > vb[0] && a.ux < vb[2] && a.uy > vb[1] && a.uy < vb[3]), tx, ty, W, MH, 13, HEAD, avoid, true);
+  drawSubjectPin(c, px, py, W, HEAD);
+  reportScaleNorth(c, W, HEAD, MH, rt.mpp);
+  c.restore();
+  const r = sp ? pclRect(sp) : null, addr = (sp && PCL.addrOfPin.get(sp.pin)) || LM.pinQuery || LM.pinLabel || '';
+  reportHeader(c, W, HEAD, 'Plot Map', 'Subject: ' + (LM.pinQuery || LM.pinLabel || addr),
+    sp ? 'Lot area ' + fmt.n(pclSf(sp.m2)) + ' sq ft (' + fmt.n(Math.round(sp.m2)) + ' m²)' + (r ? '  ·  approx. ' + Math.round(r.w) + ' × ' + Math.round(r.d) + ' ft' + (r.fill < 0.88 ? ' (irregular)' : '') : '') + '  ·  City PIN ' + sp.pin + (LM.pinComm ? '  ·  ' + LM.pinComm.n + ', ' + LM.pinComm.m : '')
+       : 'Subject lot not found in the City parcel data' + (LM.pinComm ? '  ·  ' + LM.pinComm.n + ', ' + LM.pinComm.m : ''));
+  let fy = HEAD + MH; c.fillStyle = '#ffffff'; c.fillRect(0, fy, W, FOOT); c.fillStyle = '#4b5853'; c.font = RFONT(14.5, '500'); c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  if (PCL.lu) { let x = 24; c.font = RFONT(14.5, '700'); c.fillText('Land use:', x, fy + 26); x += c.measureText('Land use:').width + 12; c.font = RFONT(14, '500');
+    for (const g of PCL_LU) { const tw = c.measureText(g[0]).width; if (x + tw + 30 > W - 20) break; c.fillStyle = g[1]; c.globalAlpha = 0.75; c.fillRect(x, fy + 14, 16, 14); c.globalAlpha = 1; c.fillStyle = '#4b5853'; c.fillText(g[0], x + 21, fy + 26); x += tw + 38; }
+    fy += 34; }
+  c.font = RFONT(14.5, '500'); c.fillStyle = '#4b5853';
+  c.fillText('Red: subject lot' + (comps.length ? '. Blue: comparables (numbered)' : '') + '. Brown lines: lot lines (City tax parcels – not a survey). Numbers: municipal addresses. Lot area is the City’s GIS area.', 24, fy + 26);
+  c.fillText('Parcels, address points' + (PCL.lu ? ' and existing land use (May 2020)' : '') + ': City of Mississauga Open Data. ' + (rt.n ? 'Base map ' + BASE_CREDIT[kind] + '.' : ''), 24, fy + 49);
+  return await new Promise(res => cv.toBlob(res, 'image/png'));
+}
+function plotMapOpen() {
+  if (!LM.pin || !LM.pinLL || !pclInMiss(LM.pinLL[0], LM.pinLL[1])) { toast('Plot maps are available for Mississauga addresses – search one first'); return; }
+  imgOverlay('Plot Map', plotMapBlob().then(blob => ({ blob, canvas: null })), 'Plot Map - ' + (LM.pinQuery || LM.pinLabel || 'subject'));
+}
+const pclTitle = s => String(s || '').toLowerCase().replace(/\b([a-z])/g, m => m.toUpperCase()).replace(/\b(Rd|Dr|St|Ave|Cres|Crt|Ct|Blvd|Way|Trl|Pl|Ln|Cir|Terr|Gt|Sq|Pkwy|Hts|Gdns)\b/g, m => m);
+const pclAddr = p => { const a = p && PCL.addrOfPin.get(p.pin); return a ? pclTitle(a) : ''; };
+function pclClick(st, e) {         // returns true when the click landed on a lot (and selected / unselected it)
+  const cv = st.box.querySelector('canvas'), rc = cv.getBoundingClientRect(), scx = st.dims.W / (st.cur[2] - st.cur[0]);
+  const p = pclAt(st.cur[0] + (e.clientX - rc.left) / scx, st.cur[1] + (e.clientY - rc.top) / scx);
+  if (!p) { if (PCL.sel) { PCL.sel = null; pclSelPanel(); drawFrame(st, st.dims.W, st.dims.H, st.cur, false); } return false; }
+  PCL.sel = PCL.sel === p ? null : p; pclSelPanel(); drawFrame(st, st.dims.W, st.dims.H, st.cur, false); return true;
+}
+function pclSelPanel() {
+  const box = $('lmPclSel'); if (!box) return; const p = PCL.sel;
+  if (!p) { box.hidden = true; box.innerHTML = ''; return; }
+  const r = pclRect(p), s = pclSales(p), addr = pclAddr(p), lu = PCL.lu && pclLu(p) !== undefined ? p.luD : '';
+  box.hidden = false;
+  box.innerHTML = '<b>Selected lot' + (addr ? ': ' + addr : '') + '</b><button class="lnk" id="lmSelX" title="Clear the selection" style="float:right">×</button><div class="row"><span>Lot area <b>' + fmt.n(pclSf(p.m2)) + ' sf</b> (' + fmt.n(Math.round(p.m2)) + ' m²)</span>' +
+    (r ? '<span>Approx. <b>' + Math.round(r.w) + ' × ' + Math.round(r.d) + ' ft</b>' + (r.fill < 0.88 ? ' (irregular)' : '') + '</span>' : '') + '<span>City PIN ' + p.pin + '</span>' + (lu ? '<span>Land use: ' + lu + '</span>' : '') +
+    (s ? '<span>Last MLS® sale <b>' + fmt.usd(s.list[s.list.length - 1][1]) + '</b>, ' + pclDate(s.list[s.list.length - 1][0]) + '</span>' : '') + '</div>' +
+    '<div class="note" style="margin:4px 0 0"><button class="lnk" id="lmSelSubj">Make this the subject</button> · <button class="lnk" id="lmSelCopy">Copy</button> · Click another lot to select it, or the same lot again to clear.</div>';
+  $('lmSelX').onclick = () => { PCL.sel = null; pclSelPanel(); const st = MAPS.loc; if (st && st.cur) drawFrame(st, st.dims.W, st.dims.H, st.cur, false); };
+  $('lmSelCopy').onclick = async () => { try { await navigator.clipboard.writeText((addr ? addr + ', Mississauga – ' : '') + 'lot area ' + fmt.n(pclSf(p.m2)) + ' sq ft (' + fmt.n(Math.round(p.m2)) + ' m²)' + (r ? ', approximately ' + Math.round(r.w) + ' x ' + Math.round(r.d) + ' ft' : '') + ' – City of Mississauga Open Data parcel ' + p.pin + '.'); toast('Lot details copied'); } catch (e) { toast('Copy failed'); } };
+  $('lmSelSubj').onclick = () => { const [ux, uy] = pclPoint(p), [la, lo] = mapGeo().toLL(ux, uy), q = (addr || ('City PIN ' + p.pin)) + ', Mississauga'; PCL.sel = null; pclSelPanel(); $('lmQ').value = q; placeSubject(la, lo, q, q); const lock = p.pin; PCL.subjPin = lock; Promise.resolve(PCL.fixP).then(() => { PCL.subjPin = lock; const [x, y] = pclPoint(p); LM.pin = [x, y]; LM.pinLL = mapGeo().toLL(x, y); if (MAPS.loc) MAPS.loc.pin = LM.pin; const st = MAPS.loc; if (st && st.cur && st.dims) drawFrame(st, st.dims.W, st.dims.H, st.cur, false); }); };
 }
 function pclTip(st, e) {
   if (st !== MAPS.loc || !st.pclShown) { if (st.hoverP) st.hoverP = null; return ''; }
@@ -2221,12 +2392,54 @@ function pclTip(st, e) {
   const p = pclAt(st.cur[0] + (e.clientX - rc.left) / scx, st.cur[1] + (e.clientY - rc.top) / scx);
   if (p !== st.hoverP) { st.hoverP = p; drawFrame(st, st.dims.W, st.dims.H, st.cur, false); }
   if (!p) return '';
+  st.box.querySelector('canvas').style.cursor = 'pointer';
   const r = pclRect(p), s = pclSales(p);
-  let t = '<div class="pcltip"><b>' + (s ? s.addr : 'Lot') + '</b><br>Lot area <b>' + fmt.n(pclSf(p.m2)) + ' sf</b> (' + fmt.n(Math.round(p.m2)) + ' m²)';
+  let t = '<div class="pcltip"><b>' + (s ? s.addr : (PCL.addrOfPin.get(p.pin) || 'Lot')) + '</b><br>Lot area <b>' + fmt.n(pclSf(p.m2)) + ' sf</b> (' + fmt.n(Math.round(p.m2)) + ' m²)';
   if (r) t += '<br>About ' + Math.round(r.w) + ' × ' + Math.round(r.d) + ' ft' + (r.fill < 0.88 ? ' · irregular' : '');
+  if (PCL.lu && pclLu(p) !== undefined && p.luD) t += '<br>Land use: ' + p.luD;
   if (s) { const L = s.list.slice(-4).reverse(); t += '<div class="tsub">MLS® sales of this lot' + (s.list.length > 4 ? ' (latest 4 of ' + s.list.length + ')' : '') + '</div>' + L.map(x => pclDate(x[0]) + ' · <b>' + fmt.usd(x[1]) + '</b> · ' + (PCL_TY[x[2]] || x[2])).join('<br>'); }
   else if (window.PSALES) t += '<br><span style="opacity:.75">No freehold MLS® sale since 2016</span>';
-  return t + '<div style="opacity:.6;font-size:10.5px">City PIN ' + p.pin + '</div></div><hr class="pclhr">';
+  return t + '<div style="opacity:.6;font-size:10.5px">City PIN ' + p.pin + ' · click to select</div></div><hr class="pclhr">';
+}
+/* Address search often lands on the road centre line (OpenStreetMap interpolates house numbers).  In Mississauga, look the
+   address up in the City's own address points (same open-data source as the lot lines): move the pin onto the house and
+   take the subject lot by its City PIN. */
+const PCL_ADDR = 'https://services6.arcgis.com/hM5ymMLbxIyWTjn2/arcgis/rest/services/Address/FeatureServer/0/query';
+const PCL_SUF = new Set('road rd drive dr street st avenue ave av crescent cres cr court crt ct boulevard blvd blv way trail trl tr place pl lane ln circle cir crcl terrace terr ter gate gt line path square sq grove grv heights hts gardens gdns parkway pkwy point pt mews common cmn close cl row run walk wlk green grn hill hl highway hwy park pk ridge rdg landing lndg glen gln wynd chase hollow cove'.split(' '));
+const PCL_DIR = new Set('n s e w north south east west'.split(' '));
+async function pclAddrFix(q, lat, lon) {
+  if (!q || !pclInMiss(lat, lon)) return;
+  const first = String(q).split(',')[0].trim().replace(/^(?:unit|suite|apt|#)\s*\S+\s+/i, ''), m = first.match(/^(?:\d+[a-z]?\s*-\s*)?(\d+[a-z]?)\s+(.+)$/i); if (!m) return;
+  const tok = m[2].toLowerCase().replace(/[.']/g, '').split(/\s+/).filter(Boolean);
+  while (tok.length > 1 && (PCL_DIR.has(tok[tok.length - 1]) || PCL_SUF.has(tok[tok.length - 1]))) tok.pop();
+  const name = tok.join(' ').toUpperCase().replace(/'/g, "''"), no = m[1].toUpperCase();
+  const ask = where => fetch(PCL_ADDR + '?where=' + encodeURIComponent(where) + '&geometry=' + lon.toFixed(5) + ',' + lat.toFixed(5) +
+    '&geometryType=esriGeometryPoint&inSR=4326&distance=2500&units=esriSRUnit_Meter&outFields=STNO,STNAME,UNIT_NO,CITY_PIN,LATITUDE,LONGITUDE&returnGeometry=false&f=json')
+    .then(r => r.json()).then(j => (j.features || []).map(f => f.attributes).filter(a => a.CITY_PIN));
+  const myPin = LM.pinLL; PCL.subjBusy = true;
+  try {
+    let hits = await ask("STNO='" + no + "' AND STNAME LIKE '" + name + "%'");
+    if (!hits.length && name.includes(' ')) hits = await ask("STNO='" + no + "' AND STNAME LIKE '" + name.split(' ')[0] + "%'");
+    if (LM.pinLL !== myPin || !hits.length) return;
+    const h = hits.find(a => !a.UNIT_NO) || hits[0], geo = mapGeo();
+    PCL.subjPin = String(h.CITY_PIN);
+    if (h.LATITUDE && h.LONGITUDE) { const [ux, uy] = geo.toUnits(h.LATITUDE, h.LONGITUDE); LM.pin = [ux, uy]; LM.pinLL = [h.LATITUDE, h.LONGITUDE]; if (MAPS.loc) MAPS.loc.pin = LM.pin; }
+    // make sure the subject lot itself is loaded, wherever the map is looking
+    if (!PCL.list.some(p => p.pin === PCL.subjPin)) {
+      const j = await fetch(PCL.URL + '?where=' + encodeURIComponent('CITY_PIN=' + PCL.subjPin) + '&outFields=FID,CITY_PIN,GIS_AREA&returnGeometry=true&outSR=4326&geometryPrecision=6&f=geojson').then(r => r.json());
+      for (const f of j.features || []) { const g = f.geometry, fk = String(f.properties.FID ?? f.id ?? PCL.subjPin); if (!g || PCL.byPin.has(fk)) continue;
+        const polys = g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : []; const rings = [], ll = [];
+        for (const poly of polys) for (const r of poly) { const a = new Float32Array(r.length * 2); r.forEach(([lo, la], k) => { const [x, y] = geo.toUnits(la, lo); a[2 * k] = x; a[2 * k + 1] = y; }); rings.push(a); ll.push(r); }
+        if (!rings.length) continue; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const r of rings) for (let k = 0; k < r.length; k += 2) { x0 = Math.min(x0, r[k]); x1 = Math.max(x1, r[k]); y0 = Math.min(y0, r[k + 1]); y1 = Math.max(y1, r[k + 1]); }
+        const p = { pin: String(f.properties.CITY_PIN), m2: +f.properties.GIS_AREA || 0, rings, ll, bb: [x0, y0, x1, y1] }; PCL.byPin.set(fk, p); PCL.list.push(p); }
+    }
+  } catch (e) { console.warn('Address match', e); }
+  finally { PCL.subjBusy = false; const st = MAPS.loc; if (st && st.cur && st.dims) { if (LM.atPin && LM.atPin === st.user) lmZoomToPin(); else drawFrame(st, st.dims.W, st.dims.H, st.cur, false); } }
+}
+function lmZoomToPin(tries) {      // street level around the searched address (~600 m across), where lot lines show in Mississauga
+  const st = MAPS.loc; if (!LM.pin) return;
+  if (!st || !st.dims || !st.cur) { if ((tries || 0) < 40) requestAnimationFrame(() => lmZoomToPin((tries || 0) + 1)); return; }
+  const w = 4.2, h = w * st.dims.H / st.dims.W; st.user = [LM.pin[0] - w / 2, LM.pin[1] - h / 2, LM.pin[0] + w / 2, LM.pin[1] + h / 2]; st.anim = (st.anim || 0) + 1; LM.atPin = st.user; drawFrame(st, st.dims.W, st.dims.H, st.user, false);
 }
 function pclPanel() {
   const box = $('lmPcl'); if (!box) return;
@@ -2239,7 +2452,7 @@ function pclPanel() {
       '<span>City PIN ' + p.pin + '</span>' + (s ? '<span>Last MLS® sale <b>' + fmt.usd(s.list[s.list.length - 1][1]) + '</b>, ' + pclDate(s.list[s.list.length - 1][0]) + '</span>' : '') + '</div>' +
       '<div class="note" style="margin:4px 0 0">Area is the City tax parcel (GIS_AREA), not a survey; width × depth is the smallest rectangle around the outline, so check frontage on a pie-shaped or corner lot. <button class="lnk" id="lmPclCopy">Copy</button> · <button class="lnk" id="lmPclZoom">Zoom to the lot</button></div>';
     const cp = $('lmPclCopy'); if (cp) cp.onclick = async () => { try { await navigator.clipboard.writeText('Lot area: ' + fmt.n(pclSf(p.m2)) + ' sq ft (' + fmt.n(Math.round(p.m2)) + ' m²)' + (r ? ', approximately ' + Math.round(r.w) + ' x ' + Math.round(r.d) + ' ft' : '') + ' – City of Mississauga Open Data parcel ' + p.pin + '.'); toast('Lot details copied'); } catch (e) { toast('Copy failed'); } }; }
-  const z = $('lmPclZoom'); if (z) z.onclick = () => { const st = MAPS.loc; if (!st || !st.dims || !LM.pin) return; const w = 4.2, h = w * st.dims.H / st.dims.W; st.user = [LM.pin[0] - w / 2, LM.pin[1] - h / 2, LM.pin[0] + w / 2, LM.pin[1] + h / 2]; st.anim = (st.anim || 0) + 1; drawFrame(st, st.dims.W, st.dims.H, st.user, false); };
+  const z = $('lmPclZoom'); if (z) z.onclick = lmZoomToPin;
 }
 let MG = null;   // decoded geometry, built once
 function mapGeo() {
@@ -2496,6 +2709,7 @@ function mapInteract(box, cv, tip) {
     if (!was) return;
     if (was.moved) { drawFrame(st, st.dims.W, st.dims.H, st.cur, false); return; }
     if (e.type !== 'pointerup') return;
+    if (st === MAPS.loc && st.pclShown && pclClick(st, e)) return;
     const r = mapHit(st, e); if (!r || r.a.l < 0) return;
     if (st.onCompare && (e.shiftKey || st.cmpMode)) { st.onCompare(r.a); return; }
     if (r.a.l !== S.l) { S.l = r.a.l; update(); } };
@@ -2617,7 +2831,7 @@ async function lmSearch(q) {
   let li = LOCS.findIndex(n => n.toLowerCase() === q.toLowerCase());
   if (li < 0 && code) li = LOCS.indexOf('Toronto ' + code[1].toUpperCase() + String(+code[2]).padStart(2, '0'));
   if (li < 0) { const hits = LOCS.map((n, j) => [n, j]).filter(([n]) => n.toLowerCase().includes(low)); if (hits.length === 1) li = hits[0][1]; }
-  if (li >= 0) { LM.pin = null; LM.focusComm = null; say(''); S.l = li; update(); return; }
+  if (li >= 0) { LM.plot = false; LM.pin = null; LM.focusComm = null; say(''); S.l = li; update(); return; }
   // 2) "lat, lng" typed directly, or 3) an address / postal code via OpenStreetMap
   if (!/^(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)$/.test(q)) say('Looking up \u201c' + q + '\u201d\u2026');
   let g;
@@ -2628,7 +2842,7 @@ async function lmSearch(q) {
 function placeSubject(lat, lon, label, q, comps) {
   const geo = mapGeo(), say = (m, err) => { LM.msg = m; LM.msgErr = !!err; lmMsg(); };
   const [ux, uy] = geo.toUnits(lat, lon), a = areaAt(ux, uy), cm = commAt(ux, uy);
-  LM.pin = [ux, uy]; LM.pinLL = [lat, lon]; LM.pinLabel = label; LM.pinQuery = q; LM.focusComm = cm && a && cm.l === a.l ? cm : null; LM.pinComm = cm; PCL.subj = null; pclPanel();
+  LM.pin = [ux, uy]; LM.pinLL = [lat, lon]; LM.pinLabel = label; LM.pinQuery = q; LM.focusComm = cm && a && cm.l === a.l ? cm : null; LM.pinComm = cm; PCL.subj = null; PCL.subjPin = null; LM.atPin = null; pclPanel(); PCL.fixP = pclAddrFix(q || label, lat, lon);
   // comparables: restored ones from a saved subject, otherwise re-measure any already placed from the new subject
   if (comps) { LM.comps = comps.map(c => compRecord(c.q, c)); LM.compsText = comps.map(c => c.q).join('\n'); }
   else LM.comps = LM.comps.map(c => c.bad ? c : compRecord(c.q, c));
@@ -2638,6 +2852,7 @@ function placeSubject(lat, lon, label, q, comps) {
   say('\ud83d\udccd ' + label + ' is in ' + (cm ? 'the <b>' + cm.n + '</b> community, ' : '') + '<b>' + a.n + '</b> (' + a.r + '). Report images: <b>Community map</b>' + (LM.comps.length ? ', <b>Comparables map</b>' : '') + ', <b>Market snapshot</b>, <b>Area brief</b>.');
   if (S.l !== a.l) { S.l = a.l; update(); } else renderLocMap();
   if (comps && comps.length) { compsFit(); renderLocMap(); }
+  if (LM.plot) { LM.plot = false; Promise.resolve(PCL.fixP).then(() => { lmZoomToPin(); if (LM.pinLL && pclInMiss(LM.pinLL[0], LM.pinLL[1])) plotMapOpen(); }); }
 }
 function lmMsg() { const m = $('lmMsg'); m.innerHTML = LM.msg ? LM.msg + ' <button class="lnk" id="lmMsgX" title="Clear">×</button>' : ''; m.classList.toggle('err', !!LM.msgErr); const x = $('lmMsgX'); if (x) x.onclick = () => { LM.msg = ''; LM.pin = null; LM.pinLL = null; LM.pinComm = null; LM.focusComm = null; lmMsg(); renderLocMap(); }; }
 function lmStop() { if (LM.play) { clearInterval(LM.play); LM.play = null; } const b = $('lmPlay'); if (b) { b.textContent = '▶'; b.title = 'Play through the months'; } }
@@ -2645,13 +2860,16 @@ function bindLocMapOnce() {
   if (bindLocMapOnce.done || !$('cardLocMap')) return; bindLocMapOnce.done = true;
   const sel = $('lmMet'); sel.innerHTML = mkOptions(S.lm); sel.onchange = () => { S.lm = sel.value; writeHash(); renderLocMap(); };
   $('lmList').innerHTML = LOCS.map(n => '<option value="' + n + '">').join('');
-  $('lmSearch').onsubmit = e => { e.preventDefault(); lmSearch($('lmQ').value); };
+  $('lmSearch').onsubmit = e => { e.preventDefault(); LM.plot = false; lmSearch($('lmQ').value); };
+  $('lmPlot').onclick = () => { if (!$('lmQ').value.trim()) { $('lmQ').focus(); return; } LM.plot = true; lmSearch($('lmQ').value); };
   $('lmFindBtn').onclick = () => { LM.findOpen = !LM.findOpen; renderFind(); renderLocMap(); };
   $('lmCmpBtn').onclick = () => { LM.cmpMode = !LM.cmpMode; renderLocMap(); };
   $('lmCmap').onclick = communityMapOpen;
   $('lmReset').onclick = lmReset;
   $('lmBase').onchange = e => { LM.base = e.target.value; renderLocMap(); };
   $('lmArrows').onclick = () => { LM.arrows = !LM.arrows; renderLocMap(); };
+  $('lmLu').onclick = () => { PCL.lu = !PCL.lu; $('lmLu').classList.toggle('on', PCL.lu); const st = MAPS.loc; if (st && st.cur && st.dims) drawFrame(st, st.dims.W, st.dims.H, st.cur, false); };
+  $('lmPmap').onclick = plotMapOpen;
   $('lmCompsBtn').onclick = () => { LM.compsOpen = !LM.compsOpen; compsRender(); };
   $('lmCompsMap').onclick = () => imgOverlay('Comparables Map', compsMapImage(), 'Comparables Map - ' + (LM.pinQuery || 'comparables'));
   $('lmSnap').onclick = () => imgOverlay('Market Snapshot', snapshotImage(), 'Market Snapshot - ' + LOCS[S.l] + ' - ' + typeName() + ' - ' + monthLabel(S.m), { pdf: true });
@@ -2691,7 +2909,8 @@ function renderLocMap() {
   $('lmCmpBtn').classList.toggle('on', LM.cmpMode || !!LM.cmp); $('lmCmpBtn').textContent = LM.cmpMode ? 'Click an area to compare…' : LM.cmp ? 'Comparing with ' + LM.cmp.n.replace('Toronto ', '') : 'Compare…';
   $('lmFs').textContent = lmFull() ? '✕ Exit full screen' : '⛶ Full screen';
   const cmb = $('lmCmap'); cmb.disabled = !(LM.pin && LM.pinComm); cmb.title = cmb.disabled ? 'Search an address first \u2013 the map then marks the subject and its PropTx community' : 'Make a report-ready community map of the searched address and copy it to the clipboard';
-  $('lmBase').value = LM.base; $('lmArrows').classList.toggle('on', LM.arrows);
+  $('lmBase').value = LM.base; $('lmArrows').classList.toggle('on', LM.arrows); $('lmLu').classList.toggle('on', PCL.lu);
+  { const pb = $('lmPmap'), ok = !!(LM.pin && LM.pinLL && pclInMiss(LM.pinLL[0], LM.pinLL[1])); pb.disabled = !ok; pb.title = ok ? 'Make a report-ready plot map: the subject lot, its neighbours, lot lines and house numbers' : 'Search a Mississauga address first'; }
   const ncomp = LM.comps.filter(c => !c.bad).length, cmb2 = $('lmCompsMap'); cmb2.disabled = !ncomp; cmb2.title = ncomp ? 'Report image of the subject and ' + ncomp + ' comparable' + (ncomp > 1 ? 's' : '') + ', numbered, with distances' : 'Place comparables first (Comparables\u2026)';
   $('lmCompsBtn').textContent = ncomp ? 'Comparables (' + ncomp + ')' : 'Comparables\u2026'; $('lmCompsBtn').classList.toggle('on', LM.compsOpen || ncomp > 0);
   // key figures for the selected location (and the compared one), with rank among the 65 mapped areas
@@ -2749,7 +2968,7 @@ function renderLocMap() {
   $('lmSide').querySelectorAll('.mpr').forEach(e => e.onclick = ev => { const li = +e.dataset.l; if (ev.shiftKey || LM.cmpMode) { const a = geo.areas.find(x => x.l === li); if (a) { LM.cmp = a; LM.cmpMode = false; renderLocMap(); return; } } S.l = li; update(); });
   const cx = $('lmCmpX'); if (cx) cx.onclick = () => { LM.cmp = null; renderLocMap(); };
   $('lmLeg').innerHTML = mapLegend(md) + (LM.arrows ? ARROW_LEGEND : '');
-  const full = lmFull(), lmH = full ? Math.max(360, window.innerHeight - 250) : S.lx ? Math.max(700, Math.min(1000, window.innerHeight - 120)) : 500, kz = lmH / 440;   // bigger map = same zoom, more surroundings
+  const full = lmFull(), lmH = full ? Math.max(360, window.innerHeight - 250) : S.lx ? Math.max(700, Math.min(1000, window.innerHeight - 120)) : 620, kz = lmH / 440;   // bigger map = same zoom, more surroundings
   const lvb = kz === 1 ? view.vb : (() => { const [a, b2, c2, d] = view.vb, cx2 = (a + c2) / 2, cy = (b2 + d) / 2, w = (c2 - a) * kz / 2, h = (d - b2) * kz / 2; return [cx2 - w, cy - h, cx2 + w, cy + h]; })();
   const st = MAPS.loc = Object.assign(MAPS.loc || {}, { box: $('lmMap'), md, mode: 'focus', fixedH: lmH, vb: lvb, tiles: true, focusComm: LM.focusComm, comps: LM.comps, arrows: LM.arrows, selArea: view.area, selRegions: view.regions, cmpArea: cmp, match, pin: LM.pin, cmpMode: LM.cmpMode,
     onCompare: a => { if (a.l === S.l) return; LM.cmp = a; LM.cmpMode = false; renderLocMap(); } });
@@ -2757,6 +2976,8 @@ function renderLocMap() {
   $('lmNote').innerHTML = (k.cats ? 'Market balance follows TRREB’s usual reading of the sales-to-new-listings ratio: under 40% a buyer’s market, 40–60% balanced, over 60% a seller’s market. ' : k.br ? 'Colours use fixed bands' + (k.div ? ' (red below, blue above)' : '') + ', so they compare directly from month to month. ' : 'Colours use one fixed scale for this measure – seven equal-count groups over every month since ' + monthLabel(0) + ' – so they compare directly as you move the time slider. ') +
     (k.noType ? 'Rents are TRREB Rental Market Report averages for apartments (all bedroom types, quarterly); the property type selection does not apply. ' : '') +
     'Hatched areas had fewer than ' + SMALL + ' sales. Hover over an area for its figures; Shift + click another area (or use Compare\u2026) to compare it side by side. Drag to move the map; zoom with + / −, the mouse wheel or a pinch; ⌂ returns to the selected area. Address search uses OpenStreetMap (Nominatim). ' + MAP_CREDIT;
+  { const nt = $('lmNote').textContent; $('lmLeg').insertAdjacentHTML('beforeend', '<button class="lmsrc" type="button" title="' + nt.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '">ⓘ Notes &amp; sources</button>');
+    const sb = $('lmLeg').querySelector('.lmsrc'); sb.onclick = () => { const n = $('lmNote'); n.classList.toggle('show'); sb.classList.toggle('on', n.classList.contains('show')); }; }
   const fb = $('lmFull'); fb.hidden = full; fb.textContent = S.lx ? 'Smaller map' : 'Larger map'; fb.title = S.lx ? 'Return the map to its normal size' : 'Make the map bigger, right here on this page';
   fb.onclick = () => { S.lx = !S.lx; renderLocMap(); if (S.lx) {        // bring the card's top just below the sticky control bar
       let bar = 0; for (const el of document.querySelectorAll('body *')) { const cs = getComputedStyle(el); if ((cs.position === 'sticky' || cs.position === 'fixed') && el.offsetHeight && el.getBoundingClientRect().top <= 1 && el.offsetHeight < innerHeight / 2) bar = Math.max(bar, el.getBoundingClientRect().bottom); }
@@ -2855,7 +3076,7 @@ function baseTile(kind, z, x, y, onload) {
 const BASE_CREDIT = { streets: '© OpenStreetMap contributors', satellite: 'Imagery © Esri, Maxar, Earthstar Geographics' };
 // draw base tiles for a report image (waits up to 9 s for them); returns how many arrived plus the numbers the scale bar needs
 async function reportTiles(c, kind, geo, vb, W, top, MH) {
-  const sc = W / (vb[2] - vb[0]), z = Math.max(10, Math.min(18, Math.floor(Math.log2(sc * 360 * geo.K / 256)))), [gx0, gy0] = geo.gpx(vb[0], vb[1], z), [gx1, gy1] = geo.gpx(vb[2], vb[3], z), f = W / (gx1 - gx0);
+  const sc = W / (vb[2] - vb[0]), z = Math.max(10, Math.min(19, Math.floor(Math.log2(sc * 360 * geo.K / 256)))), [gx0, gy0] = geo.gpx(vb[0], vb[1], z), [gx1, gy1] = geo.gpx(vb[2], vb[3], z), f = W / (gx1 - gx0);
   let n = 0;
   if (kind !== 'none') {
     const need = []; for (let x = Math.floor(gx0 / 256); x <= Math.floor(gx1 / 256); x++) for (let y = Math.floor(gy0 / 256); y <= Math.floor(gy1 / 256); y++) need.push([x, y]);
